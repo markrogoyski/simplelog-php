@@ -146,6 +146,22 @@ catch (\Exception $e) {
 }
 ```
 
+### Log Channels
+Think of channels as namespaces for log lines. If you want to have multiple loggers or applications logging to a single log line, channels are your friend.
+
+Channels can be set in two ways:
+ * Constructor parameter
+ * Setter method at any time
+
+```php
+// Constructor Parameter
+$channel = 'router';
+$logger  = new SimpleLog\Logger($logfile, $channel);
+
+// Setter method
+$logger->setChannel('database');
+```
+
 ### Debug Features
 #### Logging to STDOUT
 When developing, you can turn on log output to the screen (STDOUT) as a convenience.
