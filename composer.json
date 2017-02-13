@@ -1,0 +1,27 @@
+{
+  "name": "markrogoyski/simplelog-php",
+  "type": "library",
+  "description": "Powerful PSR-3 logging. So easy, it's simple.",
+  "keywords": ["log", "logging", "psr-3", "logger"],
+  "homepage": "https://github.com/markrogoyski/simplelog-php/",
+  "require": {
+    "php": ">=7.0.0",
+    "psr/log": "1.0.*"
+  },
+  "require-dev": {
+      "satooshi/php-coveralls": "dev-master",
+      "squizlabs/php_codesniffer": "2.*"
+  },
+  "autoload": {
+    "psr-4": {"SimpleLog\\": "src/"}
+  },
+  "authors": [
+    {
+      "name": "Mark Rogoyski",
+      "email": "mark@rogoyski.com",
+      "homepage": "https://github.com/markrogoyski",
+      "role": "Developer"
+    }
+  ],
+  "license": "MIT"
+}
