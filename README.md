@@ -61,7 +61,7 @@ $logfile = '/path/to/logfile.log';
 $channel = 'events';
 $logger  = new SimpleLog\Logger($logfile, $channel);
 
-$logger->info('This is going to be logged as informational.');
+$logger->info('SimpleLog really is simple.');
 ```
 
 That's it! Your application is logging!
