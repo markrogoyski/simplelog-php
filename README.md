@@ -138,7 +138,7 @@ $log->warning('Free space is below safe threshold.', ['volume' => '/var/log', 'a
 ```
 
 ### Logging Exceptions
-Exceptions are logged with the contextual data using the key 'exception' and the value the exception variable.
+Exceptions are logged with the contextual data using the key *exception* and the value the exception variable.
 
 ```php
 catch (\Exception $e) {
