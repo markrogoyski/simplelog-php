@@ -146,6 +146,26 @@ catch (\Exception $e) {
 }
 ```
 
+### Debug Features
+#### Logging to STDOUT
+When developing, you can turn on log output to the screen (STDOUT) as a convenience.
+
+```php
+$logger->setOutput(true);
+$logger->debug('This will get logged to STDOUT as well as the log file.');
+```
+
+#### Dummy Logger
+Suppose you need a logger to meet an injected dependency during a unit test, and you don't want it to actually log anything.
+You can set the log level to ```Logger::LOG_LEVEL_NONE``` which won't log at any level.
+
+```php
+use SimpleLog\Logger;
+
+$logger->setLogLevel(Logger::LOG_LEVEL_NONE);
+$logger->info('This will not log to a file.');
+```
+
 Unit Tests
 ----------
 
