@@ -82,8 +82,10 @@ try {
 ```
 
 Logger output
+```
 2017-02-13 00:35:55.426630  [info]  [billing] [pid:17415] Begin process that usually fails. {"process":"invoicing","user":"bob"}  {}
 2017-02-13 00:35:55.430071  [error] [billing] [pid:17415] Billing failure.  {"process":"invoicing","user":"bob"}  {"message":"Could not process invoice.","code":0,"file":"/path/to/app.php","line":20,"trace":[{"file":"/path/to/app.php","line":13,"function":"invoiceUser","args":["mark"]}]}
+```
 
 ### Log Output
 Log lines have the following format:
