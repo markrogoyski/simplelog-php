@@ -124,17 +124,26 @@ $logger = new SimpleLog\Logger($logfile, $channel, LogLevel::ERROR);
 $logger->setLogLevel(LogLevel::WARNING);
 ```
 
-### Contextual data
+### Contextual Data
 SimpleLog enables logging best practices to have general-use log messages with contextual support data to give context to the message.
 
 The second argument to a log message is an associative array of key-value pairs that will log as a JSON string, serving as the contextual support data to the log message.
 
 ```php
-// 
+// Add context to a Web request.
 $log->info('Web request initiated', ['method' => 'GET', 'endpoint' => 'user/account', 'queryParameters' => 'id=1234']);
 
+// Add context to a disk space warning.
 $log->warning('Free space is below safe threshold.', ['volume' => '/var/log', 'availablePercent' => 4]);
 ```
+
+### Logging Exceptions
+Exceptions are logged with the contextual data using the key 'exception' and the value the exception variable.
+
+```php
+catch (\Exception $e) {
+    $logger->error('Something exceptional has happened', ['exception' => $e]);
+}
 
 Unit Tests
 ----------
