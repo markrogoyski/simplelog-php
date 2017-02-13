@@ -11,7 +11,7 @@ use Psr\Log\LogLevel;
  * Implements PHP Standard Recommendation interface: PSR-3 \Psr\Log\LoggerInterface
  *
  * Log the following severities: debug, info, notice, warning, error, critical, alert, emergency.
- * Log format: YYYY-MM-DD HH:mm:SS.uuuuuu [loglevel] [channel]  [pid:##] Log content {"Optional":"JSON Support Data"} {"Optional":"Exception Data"}
+ * Log format: YYYY-mm-dd HH:ii:ss.uuuuuu  [loglevel]  [channel]  [pid:##]  Log message content  {"Optional":"JSON Contextual Support Data"}  {"Optional":"Exception Data"}
  *
  * Standard usage - default options:
  *   $logger = new SimpleLog\Logger('logfile.log', 'channelname');
@@ -340,7 +340,7 @@ class Logger implements \Psr\Log\LoggerInterface
 
     /**
      * Format the log line.
-     * YYYY-MM-DD HH:mm:SS.uuuuuu [loglevel] [channel]  [pid:##] Log message content {"Optional":"JSON Support Data"} {"Optional":"Exception Data"}
+     * YYYY-mm-dd HH:ii:ss.uuuuuu  [loglevel]  [channel]  [pid:##]  Log message content  {"Optional":"JSON Contextual Support Data"}  {"Optional":"Exception Data"}
      *
      * @param  string $level
      * @param  int    $pid
@@ -364,7 +364,7 @@ class Logger implements \Psr\Log\LoggerInterface
 
     /**
      * Get current date time.
-     * Format: YYYY-MM-DD HH:mm:SS.uuuuuu
+     * Format: YYYY-mm-dd HH:ii:ss.uuuuuu
      * Microsecond precision.
      *
      * @return string Date time

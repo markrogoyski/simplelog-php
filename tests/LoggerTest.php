@@ -19,7 +19,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
     const TEST_MESSAGE      = 'Log message goes here.';
 
     const TEST_LOG_REGEX    = "/^
-        \d{4}-\d{2}-\d{2} [ ] \d{2}:\d{2}:\d{2}[.]\d{6}    # Timestamp (YYYY-MM-DD HH:mm:ss.uuuuuu)
+        \d{4}-\d{2}-\d{2} [ ] \d{2}:\d{2}:\d{2}[.]\d{6}    # Timestamp (YYYY-mm-dd HH:ii:ss.uuuuuu)
         \s
         \[\w+\]                                            # [loglevel]
         \s

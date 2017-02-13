@@ -90,7 +90,7 @@ Logger output
 ### Log Output
 Log lines have the following format:
 ```
-YYYY-MM-DD HH:mm:SS.uuuuuu  [loglevel]  [channel]  [pid:##]  Log message content  {"Optional":"JSON Contextual Support Data"}  {"Optional":"Exception Data"}
+YYYY-mm-dd HH:ii:ss.uuuuuu  [loglevel]  [channel]  [pid:##]  Log message content  {"Optional":"JSON Contextual Support Data"}  {"Optional":"Exception Data"}
 ```
 
 Log lines are easily readable and parsable. Log lines are always on a single line. Fields are tab separated.
