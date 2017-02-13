@@ -153,6 +153,9 @@ $ cd tests
 $ phpunit
 ```
 
+[![Coverage Status](https://coveralls.io/repos/github/markrogoyski/simplelog-php/badge.svg?branch=master)](https://coveralls.io/github/markrogoyski/simplelog-php?branch=master)
+[![Build Status](https://travis-ci.org/markrogoyski/simplelog-php.svg?branch=master)](https://travis-ci.org/markrogoyski/simplelog-php)
+
 Standards
 ---------
 
