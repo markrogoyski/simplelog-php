@@ -7,7 +7,7 @@ SimpleLog is a powerful PSR-3 logger for PHP that is simple to use.
 
 Simplicity is achieved by providing great defaults. No options to configure! Yet flexible enough to meet most logging needs.
 And if your application's logging needs expand beyond what SimpleLog provides, since it implements PSR-3, you can drop in
-another great PSR-3 logger like MonoLog in its place when the time comes with minimal changes.
+another great PSR-3 logger like [MonoLog](https://github.com/Seldaek/monolog) in its place when the time comes with minimal changes.
 
 It is actively under development with development (0.y.z) releases.
 
@@ -31,7 +31,7 @@ Setup
 ```javascript
 {
   "require": {
-      "markrogoyski/simplelog": "0.*"
+      "markrogoyski/simplelog-php": "0.*"
   }
 }
 ```
@@ -90,10 +90,10 @@ Logger output
 ### Log Output
 Log lines have the following format:
 ```
-YYYY-MM-DD HH:mm:SS.uuuuuu [loglevel] [channel]  [pid:##] Log content {"Optional":"JSON Contextual Support Data"} {"Optional":"Exception Data"}
+YYYY-MM-DD HH:mm:SS.uuuuuu  [loglevel]  [channel]  [pid:##]  Log message content  {"Optional":"JSON Contextual Support Data"}  {"Optional":"Exception Data"}
 ```
 
-Log lines are easily readable and parsable. Log lines are always on a single line. Fields are tab seprated.
+Log lines are easily readable and parsable. Log lines are always on a single line. Fields are tab separated.
 
 ### Log Levels
 
@@ -144,6 +144,7 @@ Exceptions are logged with the contextual data using the key 'exception' and the
 catch (\Exception $e) {
     $logger->error('Something exceptional has happened', ['exception' => $e]);
 }
+```
 
 Unit Tests
 ----------
