@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="SimpleLog">
+ <description>The coding standard for SimpleLog.</description>
+
+ <rule ref="PSR2">
+  <!-- HD wide-screen monitors are a thing -->
+  <exclude name="Generic.Files.LineLength.TooLong"/>
+ </rule>
+
+</ruleset>
