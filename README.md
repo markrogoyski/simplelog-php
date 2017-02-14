@@ -147,7 +147,7 @@ catch (\Exception $e) {
 ```
 
 ### Log Channels
-Think of channels as namespaces for log lines. If you want to have multiple loggers or applications logging to a single log line, channels are your friend.
+Think of channels as namespaces for log lines. If you want to have multiple loggers or applications logging to a single log file, channels are your friend.
 
 Channels can be set in two ways:
  * Constructor parameter
