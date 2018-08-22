@@ -11,6 +11,10 @@ another great PSR-3 logger like [MonoLog](https://github.com/Seldaek/monolog) in
 
 It is actively under development with development (0.y.z) releases.
 
+[![Coverage Status](https://coveralls.io/repos/github/markrogoyski/simplelog-php/badge.svg?branch=master)](https://coveralls.io/github/markrogoyski/simplelog-php?branch=master)
+[![Build Status](https://travis-ci.org/markrogoyski/simplelog-php.svg?branch=master)](https://travis-ci.org/markrogoyski/simplelog-php)
+[![License](https://poser.pugx.org/markrogoyski/simplelog-php/license)](https://packagist.org/packages/markrogoyski/simplelog-php)
+
 Features
 --------
 
