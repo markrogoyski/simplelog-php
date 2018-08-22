@@ -49,6 +49,12 @@ Composer will install SimpleLog inside your vendor folder. Then you can add the 
 require_once(__DIR__ . '/vendor/autoload.php');
 ```
 
+Alternatively, use composer on the command line to require and install SimpleLog:
+
+```
+$ php composer.phar require markrogoyski/simplelog-php:0.*
+```
+
 ### Minimum Requirements
  * PHP 7
 

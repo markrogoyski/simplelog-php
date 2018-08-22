@@ -6,7 +6,7 @@ use Psr\Log\LogLevel;
 /**
  * Unit tests for SimpleLog\Logger.
  */
-class LoggerTest extends \PHPUnit_Framework_TestCase
+class LoggerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var string */
     private $logfile;
@@ -247,7 +247,6 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue((bool) preg_match('/file/', $log_line));
         $this->assertTrue((bool) preg_match('/line/', $log_line));
         $this->assertTrue((bool) preg_match('/trace/', $log_line));
-
     }
 
     /**
