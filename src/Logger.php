@@ -387,8 +387,8 @@ class Logger implements \Psr\Log\LoggerInterface
     {
         $microtime          = microtime(true);
         $microtime_formated = sprintf("%06d", ($microtime - floor($microtime) ) * 1000000);
-        $dt                 = new \DateTime(date('Y-m-d H:i:s.'.$microtime_formated, $microtime));
+        $date_time          = new \DateTimeImmutable(date('Y-m-d H:i:s.'.$microtime_formated, $microtime));
 
-        return $dt->format('Y-m-d H:i:s.u');
+        return $date_time->format('Y-m-d H:i:s.u');
     }
 }
