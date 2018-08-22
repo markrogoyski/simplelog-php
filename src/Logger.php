@@ -1,5 +1,4 @@
 <?php
-
 namespace SimpleLog;
 
 use Psr\Log\LogLevel;
@@ -72,7 +71,7 @@ class Logger implements \Psr\Log\LoggerInterface
     /**
      * Log level hierachy
      */
-    const LEVELS    = [
+    const LEVELS = [
         self::LOG_LEVEL_NONE => -1,
         LogLevel::DEBUG      => 0,
         LogLevel::INFO       => 1,
@@ -89,7 +88,7 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $log_file  File name and path of log file.
      * @param string $channel   Logger channel associated with this logger.
-     * @param int    $log_level (optional) Lowest log level to log.
+     * @param string $log_level (optional) Lowest log level to log.
      */
     public function __construct(string $log_file, string $channel, string $log_level = LogLevel::DEBUG)
     {
@@ -139,7 +138,9 @@ class Logger implements \Psr\Log\LoggerInterface
      * Fine-grained informational events that are most useful to debug an application.
      *
      * @param string $message Content of log event.
-     * @param array  $data    Associative array of contextual support data that goes with the log event.
+     * @param array $data Associative array of contextual support data that goes with the log event.
+     *
+     * @throws \RuntimeException
      */
     public function debug($message = '', array $data = null)
     {
@@ -154,6 +155,8 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $message Content of log event.
      * @param array  $data    Associative array of contextual support data that goes with the log event.
+     *
+     * @throws \RuntimeException
      */
     public function info($message = '', array $data = null)
     {
@@ -168,6 +171,8 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $message Content of log event.
      * @param array  $data    Associative array of contextual support data that goes with the log event.
+     *
+     * @throws \RuntimeException
      */
     public function notice($message = '', array $data = null)
     {
@@ -183,6 +188,8 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $message Content of log event.
      * @param array  $data    Associative array of contextual support data that goes with the log event.
+     *
+     * @throws \RuntimeException
      */
     public function warning($message = '', array $data = null)
     {
@@ -198,6 +205,8 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $message Content of log event.
      * @param array  $data    Associative array of contextual support data that goes with the log event.
+     *
+     * @throws \RuntimeException
      */
     public function error($message = '', array $data = null)
     {
@@ -212,6 +221,8 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $message Content of log event.
      * @param array  $data    Associative array of contextual support data that goes with the log event.
+     *
+     * @throws \RuntimeException
      */
     public function critical($message = '', array $data = null)
     {
@@ -227,6 +238,8 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $message Content of log event.
      * @param array  $data    Associative array of contextual support data that goes with the log event.
+     *
+     * @throws \RuntimeException
      */
     public function alert($message = '', array $data = null)
     {
@@ -242,6 +255,8 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $message Content of log event.
      * @param array  $data    Associative array of contextual support data that goes with the log event.
+     *
+     * @throws \RuntimeException
      */
     public function emergency($message = '', array $data = null)
     {
@@ -254,17 +269,16 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a message.
      * Generic log routine that all severity levels use to log an event.
      *
+     * @param string $level   Log level
      * @param string $message Content of log event.
-     * @param array  $data Potentially multidimensional associative array of support data that goes with the log event.
-     * @param array  $debug_trace Debug trace data (if exception is null).
+     * @param array  $data    Potentially multidimensional associative array of support data that goes with the log event.
      *
-     * @throws \Exception when log file cannot be opened for writing.
+     * @throws \RuntimeException when log file cannot be opened for writing.
      */
     public function log($level, $message = '', array $data = null)
     {
         try {
             // Build log line
-            $time                   = $this->getTime();
             $pid                    = getmypid();
             list($exception, $data) = $this->handleException($data);
             $data                   = $data ? json_encode($data, \JSON_UNESCAPED_SLASHES) : '{}';
@@ -272,7 +286,7 @@ class Logger implements \Psr\Log\LoggerInterface
 
             // Log to file
             $fh = fopen($this->log_file, 'a');
-            fputs($fh, $log_line);
+            fwrite($fh, $log_line);
             fclose($fh);
 
             // Log to stdout if option set to do so.
@@ -289,7 +303,7 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param  string $level
      *
-     * @return bool   True if we log at this level; false otherwise.
+     * @return bool True if we log at this level; false otherwise.
      */
     private function logAtThisLevel($level): bool
     {
