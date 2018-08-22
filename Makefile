@@ -1,4 +1,4 @@
-.PHONY : coverage lint setup tests
+.PHONY : lint setup coverage
 
 lint :
 	vendor/bin/phpcs --standard=coding_standard.xml --ignore=vendor .
