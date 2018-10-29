@@ -277,24 +277,25 @@ class Logger implements \Psr\Log\LoggerInterface
      */
     public function log($level, $message = '', array $data = null)
     {
+        // Build log line
+        $pid                    = getmypid();
+        list($exception, $data) = $this->handleException($data);
+        $data                   = $data ? json_encode($data, \JSON_UNESCAPED_SLASHES) : '{}';
+        $data                   = $data ?: '{}'; // Fail-safe incase json_encode fails.
+        $log_line               = $this->formatLogLine($level, $pid, $message, $data, $exception);
+
+        // Log to file
         try {
-            // Build log line
-            $pid                    = getmypid();
-            list($exception, $data) = $this->handleException($data);
-            $data                   = $data ? json_encode($data, \JSON_UNESCAPED_SLASHES) : '{}';
-            $log_line               = $this->formatLogLine($level, $pid, $message, $data, $exception);
-
-            // Log to file
             $fh = fopen($this->log_file, 'a');
-            fwrite($fh, $log_line);
-            fclose($fh);
-
-            // Log to stdout if option set to do so.
-            if ($this->stdout) {
-                print($log_line);
-            }
         } catch (\Throwable $e) {
             throw new \RuntimeException("Could not open log file {$this->log_file} for writing to SimpleLog channel {$this->channel}!", 0, $e);
+        }
+        fwrite($fh, $log_line);
+        fclose($fh);
+
+        // Log to stdout if option set to do so.
+        if ($this->stdout) {
+            print($log_line);
         }
     }
 
@@ -340,7 +341,7 @@ class Logger implements \Psr\Log\LoggerInterface
      */
     private function buildExceptionData(\Throwable $e): string
     {
-        return json_encode(
+        $exceptionData = json_encode(
             [
                 'message' => $e->getMessage(),
                 'code'    => $e->getCode(),
@@ -350,6 +351,9 @@ class Logger implements \Psr\Log\LoggerInterface
             ],
             \JSON_UNESCAPED_SLASHES
         );
+
+        // Fail-safe in case json_encode failed
+        return $exceptionData ?: '{"message":"' . $e->getMessage() . '"}';
     }
 
     /**
@@ -379,16 +383,12 @@ class Logger implements \Psr\Log\LoggerInterface
     /**
      * Get current date time.
      * Format: YYYY-mm-dd HH:ii:ss.uuuuuu
-     * Microsecond precision.
+     * Microsecond precision for PHP 7.1 and greater
      *
      * @return string Date time
      */
     private function getTime(): string
     {
-        $microtime          = microtime(true);
-        $microtime_formated = sprintf("%06d", ($microtime - floor($microtime) ) * 1000000);
-        $date_time          = new \DateTimeImmutable(date('Y-m-d H:i:s.'.$microtime_formated, $microtime));
-
-        return $date_time->format('Y-m-d H:i:s.u');
+        return (new \DateTimeImmutable('now'))->format('Y-m-d H:i:s.u');
     }
 }
