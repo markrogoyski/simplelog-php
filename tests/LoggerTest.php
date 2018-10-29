@@ -1,7 +1,8 @@
 <?php
-namespace SimpleLog;
+namespace SimpleLog\Tests;
 
 use Psr\Log\LogLevel;
+use SimpleLog\Logger;
 
 /**
  * Unit tests for SimpleLog\Logger.
@@ -334,7 +335,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     public function testLoggingToStdOut()
     {
         $this->logger->setOutput(true);
-        $this->expectOutputRegEx('/^\d{4}-\d{2}-\d{2} [ ] \d{2}:\d{2}:\d{2}[.]\d{6} \s \[\w+\] \s \[\w+\] \s \[pid:\d+\] \s Test Message \s {.*} \s {.*}/x');
+        $this->expectOutputRegex('/^\d{4}-\d{2}-\d{2} [ ] \d{2}:\d{2}:\d{2}[.]\d{6} \s \[\w+\] \s \[\w+\] \s \[pid:\d+\] \s Test Message \s {.*} \s {.*}/x');
         $this->logger->info('TestMessage');
     }
  
