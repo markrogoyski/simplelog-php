@@ -287,11 +287,11 @@ class Logger implements \Psr\Log\LoggerInterface
         // Log to file
         try {
             $fh = fopen($this->log_file, 'a');
+            fwrite($fh, $log_line);
+            fclose($fh);
         } catch (\Throwable $e) {
             throw new \RuntimeException("Could not open log file {$this->log_file} for writing to SimpleLog channel {$this->channel}!", 0, $e);
         }
-        fwrite($fh, $log_line);
-        fclose($fh);
 
         // Log to stdout if option set to do so.
         if ($this->stdout) {

@@ -319,10 +319,10 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Exception is thrown if the log file cannot be opened for appending.
+     * @testCase Exception is thrown if the log file cannot be opened.
      * @throws   \Exception
      */
-    public function testLogExceptionCannotOpenFileForWriting()
+    public function testLogExceptionCannotOpenFile()
     {
         $bad_logger = new Logger('/this/file/should/not/exist/on/any/system/if/it/does/well/oh/well/this/test/will/fail/logfile123.loglog.log', self::TEST_CHANNEL);
         $this->expectException(\RuntimeException::class);
