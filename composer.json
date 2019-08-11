@@ -6,13 +6,13 @@
   "homepage": "https://github.com/markrogoyski/simplelog-php/",
   "require": {
     "php": ">=7.0.0",
-    "psr/log": "1.0.*",
+    "psr/log": "1.1.*",
     "ext-json": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "6.*",
     "php-coveralls/php-coveralls": "^2.0",
-    "squizlabs/php_codesniffer": "2.*",
+    "squizlabs/php_codesniffer": "3.*",
     "phpstan/phpstan": "*",
     "phpmd/phpmd": "^2.6",
     "phploc/phploc": "*"
