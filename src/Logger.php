@@ -57,6 +57,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * @var bool
      */
     private $stdout;
+    
+    /**
+     * Callback to be called instead of `formatLogLine`
+     * @var callable
+     */
+    private $format_callback; 
 
     /**
      * Log fields separated by tabs to form a TSV (CSV with tabs).
@@ -131,6 +137,11 @@ class Logger implements \Psr\Log\LoggerInterface
     public function setOutput(bool $stdout)
     {
         $this->stdout = $stdout;
+    }
+    
+    public function setFormatCallback(callable $callback)
+    {
+        $this->format_callback = $callback;
     }
 
     /**
@@ -282,7 +293,9 @@ class Logger implements \Psr\Log\LoggerInterface
         list($exception, $data) = $this->handleException($data);
         $data                   = $data ? json_encode($data, \JSON_UNESCAPED_SLASHES) : '{}';
         $data                   = $data ?: '{}'; // Fail-safe incase json_encode fails.
-        $log_line               = $this->formatLogLine($level, $pid, $message, $data, $exception);
+        $log_line               = isset($this->format_callback) ?
+            call_user_func($this->format_callback, $level, $pid, $message, $data, $exception) :
+            $this->formatLogLine($level, $pid, $message, $data, $exception);
 
         // Log to file
         try {
