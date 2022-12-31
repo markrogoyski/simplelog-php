@@ -37,41 +37,41 @@ class Logger implements \Psr\Log\LoggerInterface
      * File name and path of log file.
      * @var string
      */
-    private $log_file;
+    private string $log_file;
 
     /**
      * Log channel--namespace for log lines.
      * Used to identify and correlate groups of similar log lines.
      * @var string
      */
-    private $channel;
+    private string $channel;
 
     /**
      * Lowest log level to log.
      * @var int
      */
-    private $log_level;
+    private int $log_level;
 
     /**
      * Whether to log to standard out.
      * @var bool
      */
-    private $stdout;
+    private bool $stdout;
 
     /**
      * Log fields separated by tabs to form a TSV (CSV with tabs).
      */
-    const TAB = "\t";
+    private const TAB = "\t";
 
     /**
      * Special minimum log level which will not log any log levels.
      */
-    const LOG_LEVEL_NONE = 'none';
+    public const LOG_LEVEL_NONE = 'none';
 
     /**
      * Log level hierachy
      */
-    const LEVELS = [
+    public const LEVELS = [
         self::LOG_LEVEL_NONE => -1,
         LogLevel::DEBUG      => 0,
         LogLevel::INFO       => 1,
@@ -103,7 +103,7 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $log_level
      */
-    public function setLogLevel(string $log_level)
+    public function setLogLevel(string $log_level): void
     {
         if (!array_key_exists($log_level, self::LEVELS)) {
             throw new \DomainException("Log level $log_level is not a valid log level. Must be one of (" . implode(', ', array_keys(self::LEVELS)) . ')');
@@ -117,7 +117,7 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param string $channel
      */
-    public function setChannel(string $channel)
+    public function setChannel(string $channel): void
     {
         $this->channel = $channel;
     }
@@ -128,7 +128,7 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param bool $stdout
      */
-    public function setOutput(bool $stdout)
+    public function setOutput(bool $stdout): void
     {
         $this->stdout = $stdout;
     }
@@ -137,12 +137,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a debug message.
      * Fine-grained informational events that are most useful to debug an application.
      *
-     * @param string $message Content of log event.
-     * @param array $data Associative array of contextual support data that goes with the log event.
+     * @param string     $message Content of log event.
+     * @param array|null $data Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function debug($message = '', array $data = null)
+    public function debug($message = '', array $data = null): void
     {
         if ($this->logAtThisLevel(LogLevel::DEBUG)) {
             $this->log(LogLevel::DEBUG, $message, $data);
@@ -153,12 +153,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log an info message.
      * Interesting events and informational messages that highlight the progress of the application at coarse-grained level.
      *
-     * @param string $message Content of log event.
-     * @param array  $data    Associative array of contextual support data that goes with the log event.
+     * @param string     $message Content of log event.
+     * @param array|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function info($message = '', array $data = null)
+    public function info($message = '', array $data = null): void
     {
         if ($this->logAtThisLevel(LogLevel::INFO)) {
             $this->log(LogLevel::INFO, $message, $data);
@@ -169,12 +169,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log an notice message.
      * Normal but significant events.
      *
-     * @param string $message Content of log event.
-     * @param array  $data    Associative array of contextual support data that goes with the log event.
+     * @param string     $message Content of log event.
+     * @param array|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function notice($message = '', array $data = null)
+    public function notice($message = '', array $data = null): void
     {
         if ($this->logAtThisLevel(LogLevel::NOTICE)) {
             $this->log(LogLevel::NOTICE, $message, $data);
@@ -186,12 +186,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Exceptional occurrences that are not errors--undesirable things that are not necessarily wrong.
      * Potentially harmful situations which still allow the application to continue running.
      *
-     * @param string $message Content of log event.
-     * @param array  $data    Associative array of contextual support data that goes with the log event.
+     * @param string     $message Content of log event.
+     * @param array|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function warning($message = '', array $data = null)
+    public function warning($message = '', array $data = null): void
     {
         if ($this->logAtThisLevel(LogLevel::WARNING)) {
             $this->log(LogLevel::WARNING, $message, $data);
@@ -203,12 +203,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Error events that might still allow the application to continue running.
      * Runtime errors that do not require immediate action but should typically be logged and monitored.
      *
-     * @param string $message Content of log event.
-     * @param array  $data    Associative array of contextual support data that goes with the log event.
+     * @param string     $message Content of log event.
+     * @param array|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function error($message = '', array $data = null)
+    public function error($message = '', array $data = null): void
     {
         if ($this->logAtThisLevel(LogLevel::ERROR)) {
             $this->log(LogLevel::ERROR, $message, $data);
@@ -219,12 +219,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a critical condition.
      * Application components being unavailable, unexpected exceptions, etc.
      *
-     * @param string $message Content of log event.
-     * @param array  $data    Associative array of contextual support data that goes with the log event.
+     * @param string     $message Content of log event.
+     * @param array|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function critical($message = '', array $data = null)
+    public function critical($message = '', array $data = null): void
     {
         if ($this->logAtThisLevel(LogLevel::CRITICAL)) {
             $this->log(LogLevel::CRITICAL, $message, $data);
@@ -236,12 +236,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * This should trigger an email or SMS alert and wake you up.
      * Example: Entire site down, database unavailable, etc.
      *
-     * @param string $message Content of log event.
-     * @param array  $data    Associative array of contextual support data that goes with the log event.
+     * @param string     $message Content of log event.
+     * @param array|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function alert($message = '', array $data = null)
+    public function alert($message = '', array $data = null): void
     {
         if ($this->logAtThisLevel(LogLevel::ALERT)) {
             $this->log(LogLevel::ALERT, $message, $data);
@@ -253,12 +253,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * System is unsable.
      * This should trigger an email or SMS alert and wake you up.
      *
-     * @param string $message Content of log event.
-     * @param array  $data    Associative array of contextual support data that goes with the log event.
+     * @param string     $message Content of log event.
+     * @param array|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function emergency($message = '', array $data = null)
+    public function emergency($message = '', array $data = null): void
     {
         if ($this->logAtThisLevel(LogLevel::EMERGENCY)) {
             $this->log(LogLevel::EMERGENCY, $message, $data);
@@ -269,13 +269,13 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a message.
      * Generic log routine that all severity levels use to log an event.
      *
-     * @param string $level   Log level
-     * @param string $message Content of log event.
-     * @param array  $data    Potentially multidimensional associative array of support data that goes with the log event.
+     * @param string     $level   Log level
+     * @param string     $message Content of log event.
+     * @param array|null $data    Potentially multidimensional associative array of support data that goes with the log event.
      *
      * @throws \RuntimeException when log file cannot be opened for writing.
      */
-    public function log($level, $message = '', array $data = null)
+    public function log($level, $message = '', array $data = null): void
     {
         // Build log line
         $pid                    = getmypid();
@@ -306,7 +306,7 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @return bool True if we log at this level; false otherwise.
      */
-    private function logAtThisLevel($level): bool
+    private function logAtThisLevel(string $level): bool
     {
         return self::LEVELS[$level] >= $this->log_level;
     }
@@ -315,7 +315,7 @@ class Logger implements \Psr\Log\LoggerInterface
      * Handle an exception in the data context array.
      * If an exception is included in the data context array, extract it.
      *
-     * @param  array  $data
+     * @param  array|null $data
      *
      * @return array  [exception, data (without exception)]
      */

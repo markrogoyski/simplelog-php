@@ -37,7 +37,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     /**
      * Set up test by instantiating a logger writing to a temporary file.
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->logfile = tempnam('/tmp', 'SimpleLogUnitTest');
 
@@ -50,7 +50,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     /**
      * Clean up test by removing temporary log file.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         if (file_exists($this->logfile)) {
             unlink($this->logfile);
@@ -416,6 +416,6 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
         $time = $method->invoke($this->logger);
 
         // Then
-        $this->assertRegExp('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}[.]\d{6}$/', $time);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}[.]\d{6}$/', $time);
     }
 }
