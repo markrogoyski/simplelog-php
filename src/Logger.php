@@ -137,8 +137,8 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a debug message.
      * Fine-grained informational events that are most useful to debug an application.
      *
-     * @param string     $message Content of log event.
-     * @param array|null $data Associative array of contextual support data that goes with the log event.
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
@@ -153,8 +153,8 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log an info message.
      * Interesting events and informational messages that highlight the progress of the application at coarse-grained level.
      *
-     * @param string     $message Content of log event.
-     * @param array|null $data    Associative array of contextual support data that goes with the log event.
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
@@ -169,8 +169,8 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log an notice message.
      * Normal but significant events.
      *
-     * @param string     $message Content of log event.
-     * @param array|null $data    Associative array of contextual support data that goes with the log event.
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
@@ -186,8 +186,8 @@ class Logger implements \Psr\Log\LoggerInterface
      * Exceptional occurrences that are not errors--undesirable things that are not necessarily wrong.
      * Potentially harmful situations which still allow the application to continue running.
      *
-     * @param string     $message Content of log event.
-     * @param array|null $data    Associative array of contextual support data that goes with the log event.
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
@@ -203,8 +203,8 @@ class Logger implements \Psr\Log\LoggerInterface
      * Error events that might still allow the application to continue running.
      * Runtime errors that do not require immediate action but should typically be logged and monitored.
      *
-     * @param string     $message Content of log event.
-     * @param array|null $data    Associative array of contextual support data that goes with the log event.
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
@@ -219,8 +219,8 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a critical condition.
      * Application components being unavailable, unexpected exceptions, etc.
      *
-     * @param string     $message Content of log event.
-     * @param array|null $data    Associative array of contextual support data that goes with the log event.
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
@@ -236,8 +236,8 @@ class Logger implements \Psr\Log\LoggerInterface
      * This should trigger an email or SMS alert and wake you up.
      * Example: Entire site down, database unavailable, etc.
      *
-     * @param string     $message Content of log event.
-     * @param array|null $data    Associative array of contextual support data that goes with the log event.
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
@@ -253,8 +253,8 @@ class Logger implements \Psr\Log\LoggerInterface
      * System is unsable.
      * This should trigger an email or SMS alert and wake you up.
      *
-     * @param string     $message Content of log event.
-     * @param array|null $data    Associative array of contextual support data that goes with the log event.
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data    Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
@@ -269,24 +269,28 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a message.
      * Generic log routine that all severity levels use to log an event.
      *
-     * @param string     $level   Log level
-     * @param string     $message Content of log event.
-     * @param array|null $data    Potentially multidimensional associative array of support data that goes with the log event.
+     * @param string       $level   Log level
+     * @param string       $message Content of log event.
+     * @param mixed[]|null $data    Potentially multidimensional associative array of support data that goes with the log event.
      *
      * @throws \RuntimeException when log file cannot be opened for writing.
      */
     public function log($level, $message = '', array $data = null): void
     {
         // Build log line
-        $pid                    = getmypid();
-        list($exception, $data) = $this->handleException($data);
-        $data                   = $data ? json_encode($data, \JSON_UNESCAPED_SLASHES) : '{}';
-        $data                   = $data ?: '{}'; // Fail-safe incase json_encode fails.
-        $log_line               = $this->formatLogLine($level, $pid, $message, $data, $exception);
+        $pid                = getmypid() ?: -1;
+        /** @var string $exception */
+        [$exception, $data] = $this->handleException($data);
+        $data               = $data ? json_encode($data, \JSON_UNESCAPED_SLASHES) : '{}';
+        $data               = $data ?: '{}'; // Fail-safe in case json_encode fails.
+        $log_line           = $this->formatLogLine($level, $pid, $message, $data, $exception);
 
         // Log to file
         try {
             $fh = fopen($this->log_file, 'a');
+            if ($fh === false) {
+                throw new \RuntimeException('fopen failed');
+            }
             fwrite($fh, $log_line);
             fclose($fh);
         } catch (\Throwable $e) {
@@ -315,9 +319,9 @@ class Logger implements \Psr\Log\LoggerInterface
      * Handle an exception in the data context array.
      * If an exception is included in the data context array, extract it.
      *
-     * @param  array|null $data
+     * @param  mixed[]|null $data
      *
-     * @return array  [exception, data (without exception)]
+     * @return mixed[]  [exception, data (without exception)]
      */
     private function handleException(array $data = null): array
     {

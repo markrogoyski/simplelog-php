@@ -9,16 +9,14 @@ use SimpleLog\Logger;
  */
 class LoggerTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var string */
-    private $logfile;
+    private string $logfile;
 
-    /** @var Logger */
-    private $logger;
+    private Logger $logger;
 
-    const TEST_CHANNEL      = 'unittest';
-    const TEST_MESSAGE      = 'Log message goes here.';
+    private const TEST_CHANNEL      = 'unittest';
+    private const TEST_MESSAGE      = 'Log message goes here.';
 
-    const TEST_LOG_REGEX    = "/^
+    private const TEST_LOG_REGEX    = "/^
         \d{4}-\d{2}-\d{2} [ ] \d{2}:\d{2}:\d{2}[.]\d{6}    # Timestamp (YYYY-mm-dd HH:ii:ss.uuuuuu)
         \s
         \[\w+\]                                            # [loglevel]
@@ -58,7 +56,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Logger implements PSR-3 Psr\Log\LoggerInterface
+     * @test Logger implements PSR-3 Psr\Log\LoggerInterface
      */
     public function testLoggerImplementsPRS3Interface()
     {
@@ -66,8 +64,8 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Constructor sets expected properties.
-     * @throws   \Exception
+     * @test   Constructor sets expected properties.
+     * @throws \Exception
      */
     public function testConstructorSetsProperties()
     {
@@ -91,7 +89,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase     setLogLevel sets the correct log level.
+     * @test         setLogLevel sets the correct log level.
      * @dataProvider dataProviderForSetLogLevel
      * @param string $log_level
      * @param int    $expected_log_level_code
@@ -130,8 +128,8 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase setLogLevel throws a \DomainException when set to an invalid log level.
-     * @throws   \Exception
+     * @test   setLogLevel throws a \DomainException when set to an invalid log level.
+     * @throws \Exception
      */
     public function testSetLogLevelWithBadLevelException()
     {
@@ -144,7 +142,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
 
 
     /**
-     * @testCase     setChannel sets the channel property.
+     * @test         setChannel sets the channel property.
      * @dataProvider dataProviderForSetChannel
      * @param        string $channel
      * @throws       \Exception
@@ -174,7 +172,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase     setOutput sets the stdout property.
+     * @test         setOutput sets the stdout property.
      * @dataProvider dataProviderForSetOutput
      * @param        bool $output
      * @throws       \Exception
@@ -204,7 +202,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase     Logger creates properly formatted log lines with the right log level.
+     * @test         Logger creates properly formatted log lines with the right log level.
      * @dataProvider dataProviderForLogging
      * @param string $logLevel
      */
@@ -237,7 +235,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Data context array shows up as a JSON string.
+     * @test Data context array shows up as a JSON string.
      */
     public function testDataContext()
     {
@@ -250,7 +248,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Logging an exception
+     * @test Logging an exception
      */
     public function testExceptionTextWhenLoggingErrorWithExceptionData()
     {
@@ -271,7 +269,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Log lines will be on a single line even if there are newline characters in the log message.
+     * @test Log lines will be on a single line even if there are newline characters in the log message.
      */
     public function testLogMessageIsOneLineEvenThoughItHasNewLineCharacters()
     {
@@ -284,7 +282,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Log lines will be on a single line even if there are newline characters in the log message.
+     * @test Log lines will be on a single line even if there are newline characters in the log message.
      */
     public function testLogMessageIsOneLineEvenThoughItHasNewLineCharactersInData()
     {
@@ -297,7 +295,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Log lines will be on a single line even if there are newline characters in the exception.
+     * @test Log lines will be on a single line even if there are newline characters in the exception.
      */
     public function testLogMessageIsOneLineEvenThoughItHasNewLineCharactersInException()
     {
@@ -310,7 +308,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Minimum log levels determine what log levels get logged.
+     * @test Minimum log levels determine what log levels get logged.
      */
     public function testMinimumLogLevels()
     {
@@ -335,7 +333,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Minimum log levels determine what log levels get logged.
+     * @test Minimum log levels determine what log levels get logged.
      */
     public function testMinimumLogLevelsByCheckingFileExistsBelowLogLevel()
     {
@@ -356,7 +354,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Minimum log levels determine what log levels get logged.
+     * @test Minimum log levels determine what log levels get logged.
      */
     public function testMinimumLogLevelsByCheckingFileExistsAboveLogLevel()
     {
@@ -371,8 +369,8 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase Exception is thrown if the log file cannot be opened.
-     * @throws   \Exception
+     * @test   Exception is thrown if the log file cannot be opened.
+     * @throws \Exception
      */
     public function testLogExceptionCannotOpenFile()
     {
@@ -387,7 +385,7 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @testCase After setting output to true the logger will output log lines to STDOUT.
+     * @test After setting output to true the logger will output log lines to STDOUT.
      */
     public function testLoggingToStdOut()
     {
@@ -402,8 +400,8 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
  
     /**
-     * @testCase Time should be in YYYY-MM-DD HH:mm:SS.uuuuuu format.
-     * @throws   \Exception
+     * @test   Time should be in YYYY-MM-DD HH:mm:SS.uuuuuu format.
+     * @throws \Exception
      */
     public function testGetTime()
     {
