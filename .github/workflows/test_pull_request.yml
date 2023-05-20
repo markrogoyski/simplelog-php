@@ -3,8 +3,8 @@ name: Test and Static Analysis (Pull Request)
 on: pull_request
 
 jobs:
-  test-and-static-analysis:
-    name: Test and Static Analysis
+  test-lint-and-static-analysis:
+    name: Test, Lint and Static Analysis
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -15,16 +15,15 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
           tools: composer:v2
 
       - name: Set up Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '14.x'
+          node-version: '16.x'
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -47,14 +46,21 @@ jobs:
           ./vendor/bin/phpunit --configuration tests/phpunit.xml
 
       - name: PHP Code Sniffer
-        run: ./vendor/bin/phpcs --ignore=vendor --standard=tests/coding_standard.xml -s .
+        run: |
+          ./vendor/bin/phpcs --version
+          ./vendor/bin/phpcs --ignore=vendor --standard=tests/coding_standard.xml -s .
+
+      - name: PHP Stan
+        run: |
+          ./vendor/bin/phpstan --version
+          ./vendor/bin/phpstan analyze -c tests/phpstan.neon
 
   code-coverage:
     name: Code coverage
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.0']
+        php: ['7.4']
 
     steps:
       - name: Set up PHP
@@ -65,20 +71,17 @@ jobs:
           tools: composer:v2
 
       - name: Set up Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '14.x'
+          node-version: '16.x'
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Run Composer
         run: composer install --no-interaction
-
-      - name: PHP Lint
-        run: ./vendor/bin/parallel-lint src tests
 
       - name: Unit tests
         run: |
