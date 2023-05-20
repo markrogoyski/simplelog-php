@@ -69,7 +69,7 @@ class Logger implements \Psr\Log\LoggerInterface
     public const LOG_LEVEL_NONE = 'none';
 
     /**
-     * Log level hierachy
+     * Log level hierarchy
      */
     public const LEVELS = [
         self::LOG_LEVEL_NONE => -1,
@@ -385,9 +385,8 @@ class Logger implements \Psr\Log\LoggerInterface
     }
 
     /**
-     * Get current date time.
+     * Get current date time, with microsecond precision.
      * Format: YYYY-mm-dd HH:ii:ss.uuuuuu
-     * Microsecond precision for PHP 7.1 and greater
      *
      * @return string Date time
      */
