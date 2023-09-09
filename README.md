@@ -11,7 +11,7 @@ Simplicity is achieved by providing great defaults. No options to configure! Yet
 And if your application's logging needs expand beyond what SimpleLog provides, since it implements PSR-3, you can drop in
 another great PSR-3 logger like [MonoLog](https://github.com/Seldaek/monolog) in its place when the time comes with minimal changes.
 
-It is actively under development with development (0.y.z) releases.
+It is actively under development with development (1.y.z) releases.
 
 [![Coverage Status](https://coveralls.io/repos/github/markrogoyski/simplelog-php/badge.svg?branch=master)](https://coveralls.io/github/markrogoyski/simplelog-php?branch=master)
 [![License](https://poser.pugx.org/markrogoyski/simplelog-php/license)](https://packagist.org/packages/markrogoyski/simplelog-php)
@@ -36,7 +36,7 @@ Setup
 ```javascript
 {
   "require": {
-      "markrogoyski/simplelog-php": "0.*"
+      "markrogoyski/simplelog-php": "1.*"
   }
 }
 ```
