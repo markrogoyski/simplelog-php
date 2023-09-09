@@ -1,4 +1,4 @@
-![SimpleLog Logo](https://github.com/markrogoyski/simplelog-php/blob/main/docs/image/SimpleLogLogo.png?raw=true)
+![SimpleLog Logo](https://github.com/markrogoyski/simplelog-php/blob/master/docs/image/SimpleLogLogo.png?raw=true)
 
 SimpleLog
 =====================
