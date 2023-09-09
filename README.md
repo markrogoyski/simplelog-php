@@ -61,7 +61,9 @@ $ php composer.phar require markrogoyski/simplelog-php:0.*
 ```
 
 ### Minimum Requirements
- * PHP 7
+ * PHP 7.4
+
+Note: For PHP 7.0–7.3, use v.4 (`markrogoyski/simplelog-php:0.4`)
 
 Usage
 -----
