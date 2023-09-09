@@ -57,13 +57,13 @@ require_once(__DIR__ . '/vendor/autoload.php');
 Alternatively, use composer on the command line to require and install SimpleLog:
 
 ```
-$ php composer.phar require markrogoyski/simplelog-php:0.*
+$ php composer.phar require markrogoyski/simplelog-php:1.*
 ```
 
 ### Minimum Requirements
  * PHP 7.4
 
-Note: For PHP 7.0–7.3, use v.4 (`markrogoyski/simplelog-php:0.4`)
+Note: For PHP 7.0–7.3, use v0.4 (`markrogoyski/simplelog-php:0.4`)
 
 Usage
 -----
@@ -210,7 +210,10 @@ Standards
 
 SimpleLog conforms to the following standards:
 
- * PSR-3 - Logger Interface (http://www.php-fig.org/psr/psr-3/)
+  * PSR-1  - Basic coding standard (http://www.php-fig.org/psr/psr-1/)
+  * PSR-3 - Logger Interface (http://www.php-fig.org/psr/psr-3/)
+  * PSR-4  - Autoloader (http://www.php-fig.org/psr/psr-4/)
+  * PSR-12 - Extended coding style guide (http://www.php-fig.org/psr/psr-12/)
 
 License
 -------
