@@ -137,12 +137,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a debug message.
      * Fine-grained informational events that are most useful to debug an application.
      *
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Associative array of contextual support data that goes with the log event.
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function debug($message = '', array $context = null): void
+    public function debug(string|\Stringable $message = '', array $context = []): void
     {
         if ($this->logAtThisLevel(LogLevel::DEBUG)) {
             $this->log(LogLevel::DEBUG, $message, $context);
@@ -153,12 +153,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log an info message.
      * Interesting events and informational messages that highlight the progress of the application at coarse-grained level.
      *
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Associative array of contextual support data that goes with the log event.
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function info($message = '', array $context = null): void
+    public function info(string|\Stringable $message = '', array $context = []): void
     {
         if ($this->logAtThisLevel(LogLevel::INFO)) {
             $this->log(LogLevel::INFO, $message, $context);
@@ -169,12 +169,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log an notice message.
      * Normal but significant events.
      *
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Associative array of contextual support data that goes with the log event.
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function notice($message = '', array $context = null): void
+    public function notice(string|\Stringable $message = '', array $context = []): void
     {
         if ($this->logAtThisLevel(LogLevel::NOTICE)) {
             $this->log(LogLevel::NOTICE, $message, $context);
@@ -186,12 +186,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Exceptional occurrences that are not errors--undesirable things that are not necessarily wrong.
      * Potentially harmful situations which still allow the application to continue running.
      *
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Associative array of contextual support data that goes with the log event.
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function warning($message = '', array $context = null): void
+    public function warning(string|\Stringable $message = '', array $context = []): void
     {
         if ($this->logAtThisLevel(LogLevel::WARNING)) {
             $this->log(LogLevel::WARNING, $message, $context);
@@ -203,12 +203,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Error events that might still allow the application to continue running.
      * Runtime errors that do not require immediate action but should typically be logged and monitored.
      *
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Associative array of contextual support data that goes with the log event.
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function error($message = '', array $context = null): void
+    public function error(string|\Stringable $message = '', array $context = []): void
     {
         if ($this->logAtThisLevel(LogLevel::ERROR)) {
             $this->log(LogLevel::ERROR, $message, $context);
@@ -219,12 +219,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a critical condition.
      * Application components being unavailable, unexpected exceptions, etc.
      *
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Associative array of contextual support data that goes with the log event.
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function critical($message = '', array $context = null): void
+    public function critical(string|\Stringable $message = '', array $context = []): void
     {
         if ($this->logAtThisLevel(LogLevel::CRITICAL)) {
             $this->log(LogLevel::CRITICAL, $message, $context);
@@ -236,12 +236,12 @@ class Logger implements \Psr\Log\LoggerInterface
      * This should trigger an email or SMS alert and wake you up.
      * Example: Entire site down, database unavailable, etc.
      *
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Associative array of contextual support data that goes with the log event.
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function alert($message = '', array $context = null): void
+    public function alert(string|\Stringable $message = '', array $context = []): void
     {
         if ($this->logAtThisLevel(LogLevel::ALERT)) {
             $this->log(LogLevel::ALERT, $message, $context);
@@ -250,15 +250,15 @@ class Logger implements \Psr\Log\LoggerInterface
 
     /**
      * Log an emergency.
-     * System is unsable.
+     * System is unusable.
      * This should trigger an email or SMS alert and wake you up.
      *
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Associative array of contextual support data that goes with the log event.
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException
      */
-    public function emergency($message = '', array $context = null): void
+    public function emergency(string|\Stringable $message = '', array $context = []): void
     {
         if ($this->logAtThisLevel(LogLevel::EMERGENCY)) {
             $this->log(LogLevel::EMERGENCY, $message, $context);
@@ -269,13 +269,13 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log a message.
      * Generic log routine that all severity levels use to log an event.
      *
-     * @param string       $level   Log level
-     * @param string       $message Content of log event.
-     * @param mixed[]|null $context Potentially multidimensional associative array of support data that goes with the log event.
+     * @param string             $level   Log level
+     * @param string|\Stringable $message Content of log event.
+     * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
      *
      * @throws \RuntimeException when log file cannot be opened for writing.
      */
-    public function log($level, $message = '', array $context = null): void
+    public function log($level, string|\Stringable $message = '', array $context = []): void
     {
         // Build log line
         $pid                = getmypid() ?: -1;
