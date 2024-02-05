@@ -1,6 +1,6 @@
-.PHONY : lint tests style phpstan psalm phpmd report coverage
+.PHONY : lint tests style phpstan psalm phpmd report coverage demo
 
-all : lint tests style phpstan
+all : lint tests style phpstan psalm demo
 
 tests :
 	vendor/bin/phpunit tests/ --configuration=tests/phpunit.xml
@@ -25,3 +25,6 @@ coverage :
 
 report :
 	vendor/bin/phploc src/
+
+demo :
+	php docs/demo.php
