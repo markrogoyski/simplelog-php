@@ -84,18 +84,16 @@ class Logger implements \Psr\Log\LoggerInterface
     ];
 
     /**
-     * Logger constructor
-     *
-     * @param string $log_file  File name and path of log file.
-     * @param string $channel   Logger channel associated with this logger.
-     * @param string $log_level (optional) Lowest log level to log.
+     * @param string $logFile  File name and path of log file.
+     * @param string $channel  Logger channel associated with this logger.
+     * @param string $logLevel (optional) Lowest log level to log.
      */
-    public function __construct(string $log_file, string $channel, string $log_level = LogLevel::DEBUG)
+    public function __construct(string $logFile, string $channel, string $logLevel = LogLevel::DEBUG)
     {
-        $this->logFile  = $log_file;
+        $this->logFile  = $logFile;
         $this->channel   = $channel;
         $this->stdout    = false;
-        $this->setLogLevel($log_level);
+        $this->setLogLevel($logLevel);
     }
 
     /**
