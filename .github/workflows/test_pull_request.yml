@@ -36,24 +36,29 @@ jobs:
       - name: Run Composer
         run: composer install --no-interaction
 
-      - name: PHP Lint
+      - name: PHP Lint - Syntax Linting
         run: ./vendor/bin/parallel-lint src tests
 
-      - name: Unit tests
+      - name: PHPUnit - Unit Tests
         run: |
           mkdir -p build/logs
           ./vendor/bin/phpunit --version
           ./vendor/bin/phpunit --configuration tests/phpunit.xml
 
-      - name: PHP Code Sniffer
+      - name: PHP Code Sniffer - Style Linting
         run: |
           ./vendor/bin/phpcs --version
           ./vendor/bin/phpcs --ignore=vendor --standard=tests/coding_standard.xml -s .
 
-      - name: PHP Stan
+      - name: PHP Stan - Static Analysis
         run: |
           ./vendor/bin/phpstan --version
           ./vendor/bin/phpstan analyze -c tests/phpstan.neon
+
+      - name: Psalm - Static Analysis
+        run: |
+          ./vendor/bin/psalm --version
+          ./vendor/bin/psalm --config=tests/psalm.xml
 
   code-coverage:
     name: Code coverage
