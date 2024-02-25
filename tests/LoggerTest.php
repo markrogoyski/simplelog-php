@@ -3,11 +3,12 @@ namespace SimpleLog\Tests;
 
 use Psr\Log\LogLevel;
 use SimpleLog\Logger;
+use SimpleLog\Tests\Fixture\StringableMessage;
 
 /**
  * Unit tests for SimpleLog\Logger.
  */
-class LoggerTest extends \PHPUnit\Framework\TestCase
+final class LoggerTest extends \PHPUnit\Framework\TestCase
 {
     private string $logFile;
 
@@ -202,14 +203,33 @@ class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @test         Logger creates properly formatted log lines with the right log level.
+     * @test         Logger creates properly formatted log lines with the right log level for a string.
      * @dataProvider dataProviderForLogging
      * @param string $logLevel
      */
-    public function testLogging(string $logLevel)
+    public function testLoggingWithString(string $logLevel)
     {
         // When
         $this->logger->$logLevel(self::TEST_MESSAGE);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then
+        $this->assertTrue((bool) preg_match(self::TEST_LOG_REGEX, $logLine));
+        $this->assertTrue((bool) preg_match("/\[$logLevel\]/", $logLine));
+    }
+
+    /**
+     * @test         Logger creates properly formatted log lines with the right log level for a Stringable.
+     * @dataProvider dataProviderForLogging
+     * @param string $logLevel
+     */
+    public function testLoggingWithStringable(string $logLevel)
+    {
+        // Given
+        $message = new StringableMessage(self::TEST_MESSAGE);
+
+        // When
+        $this->logger->$logLevel($message);
         $logLine = \trim(\file_get_contents($this->logFile));
 
         // Then
