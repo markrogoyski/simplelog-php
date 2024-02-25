@@ -11,8 +11,6 @@ Simplicity is achieved by providing great defaults. No options to configure! Yet
 And if your application's logging needs expand beyond what SimpleLog provides, since it implements PSR-3, you can drop in
 another great PSR-3 logger like [MonoLog](https://github.com/Seldaek/monolog) in its place when the time comes with minimal changes.
 
-It is actively under development with development (1.y.z) releases.
-
 [![Coverage Status](https://coveralls.io/repos/github/markrogoyski/simplelog-php/badge.svg?branch=master)](https://coveralls.io/github/markrogoyski/simplelog-php?branch=master)
 [![License](https://poser.pugx.org/markrogoyski/simplelog-php/license)](https://packagist.org/packages/markrogoyski/simplelog-php)
 
@@ -36,7 +34,7 @@ Setup
 ```javascript
 {
   "require": {
-      "markrogoyski/simplelog-php": "1.*"
+      "markrogoyski/simplelog-php": "2.*"
   }
 }
 ```
@@ -57,13 +55,14 @@ require_once(__DIR__ . '/vendor/autoload.php');
 Alternatively, use composer on the command line to require and install SimpleLog:
 
 ```
-$ php composer.phar require markrogoyski/simplelog-php:1.*
+$ php composer.phar require markrogoyski/simplelog-php:2.*
 ```
 
 ### Minimum Requirements
- * PHP 7.4
+ * PHP 8.0
 
-**Note**: For PHP 7.0–7.3, use v0.4 (`markrogoyski/simplelog-php:0.4`)
+- **Note**: For PHP 7.4, use v1.0 (`markrogoyski/simplelog-php:1.0`)
+- **Note**: For PHP 7.0–7.3, use v0.4 (`markrogoyski/simplelog-php:0.4`)
 
 Usage
 -----
