@@ -1,5 +1,10 @@
 # SimpleLog Change Log
 
+## v2.1.0 - 2024-11-05
+
+- Add `psr/log` 3.0.* support.
+- `psr/log` 2.0.* still supported with Composer `||` conditional
+
 ## v2.0.0 - 2024-02-25
 
 Updated for PHP and PSR log version updates.
