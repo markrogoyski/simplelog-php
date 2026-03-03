@@ -1,6 +1,6 @@
 # SimpleLog Change Log
 
-## v3.0.0
+## v3.0.0 - 2026-03-02
 
 Updated for PHP 8.1 and modern PSR log support.
 
