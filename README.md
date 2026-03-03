@@ -34,7 +34,7 @@ Setup
 ```javascript
 {
   "require": {
-      "markrogoyski/simplelog-php": "2.*"
+      "markrogoyski/simplelog-php": "3.*"
   }
 }
 ```
@@ -55,12 +55,13 @@ require_once(__DIR__ . '/vendor/autoload.php');
 Alternatively, use composer on the command line to require and install SimpleLog:
 
 ```
-$ php composer.phar require markrogoyski/simplelog-php:2.*
+$ php composer.phar require markrogoyski/simplelog-php:3.*
 ```
 
 ### Minimum Requirements
- * PHP 8.0
+ * PHP 8.1
 
+- **Note**: For PHP 8.0, use v2.x (`markrogoyski/simplelog-php:2.*`)
 - **Note**: For PHP 7.4, use v1.0 (`markrogoyski/simplelog-php:1.0`)
 - **Note**: For PHP 7.0–7.3, use v0.4 (`markrogoyski/simplelog-php:0.4`)
 
@@ -149,6 +150,15 @@ $log->info('Web request initiated', ['method' => 'GET', 'endpoint' => 'user/acco
 $log->warning('Free space is below safe threshold.', ['volume' => '/var/log', 'availablePercent' => 4]);
 ```
 
+Context values can be interpolated into the log message using `{placeholder}` syntax as defined by PSR-3:
+
+```php
+$logger->info('User {username} logged in from {ip}', ['username' => 'mark', 'ip' => '192.168.1.1']);
+// Message output: User mark logged in from 192.168.1.1
+```
+
+The full context array is still included as JSON in the log line alongside the interpolated message.
+
 ### Logging Exceptions
 Exceptions are logged with the contextual data using the key *exception* and the value the exception variable.
 
@@ -179,7 +189,7 @@ $logger->setChannel('database');
 When developing, you can turn on log output to the screen (STDOUT) as a convenience.
 
 ```php
-$logger->setOutput(true);
+$logger->setStdout(true);
 $logger->debug('This will get logged to STDOUT as well as the log file.');
 ```
 

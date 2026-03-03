@@ -1,5 +1,16 @@
 # SimpleLog Change Log
 
+## v3.0.0
+
+Updated for PHP 8.1 and modern PSR log support.
+
+- PHP minimum version 8.1.
+- Requires `psr/log` ^3.0 (dropped 2.0 support).
+- `setOutput()` renamed to `setStdout()` for clarity.
+- Improved log file locking.
+- Input sanitization.
+- Uses `Psr\Log\InvalidArgumentException` for invalid log levels.
+
 ## v2.1.0 - 2024-11-05
 
 - Add `psr/log` 3.0.* support.

@@ -12,7 +12,7 @@ $channel = 'demo';
 $logger = new Logger($logFile, $channel);
 
 // Set optional output to screen
-$logger->setOutput(true);
+$logger->setStdout(true);
 
 // Logging at different log levels without context.
 $logger->debug('This is a debug message.');

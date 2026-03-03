@@ -1,4 +1,4 @@
-.PHONY : lint tests style phpstan psalm phpmd report coverage demo
+.PHONY : lint tests style phpstan psalm phpmd report composer-unused composer-require-checker composer-audit coverage demo
 
 all : lint tests style phpstan psalm demo
 
@@ -20,11 +20,17 @@ psalm :
 phpmd :
 	vendor/bin/phpmd src/ ansi cleancode,codesize,design,unusedcode,naming
 
+composer-unused :
+	vendor/bin/composer-unused
+
+composer-require-checker :
+	vendor/bin/composer-require-checker check composer.json
+
+composer-audit :
+	./composer.phar audit
+
 coverage :
 	vendor/bin/phpunit tests/ --configuration=tests/phpunit.xml --coverage-text=php://stdout
-
-report :
-	vendor/bin/phploc src/
 
 demo :
 	php docs/demo.php

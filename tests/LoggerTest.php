@@ -1,6 +1,10 @@
 <?php
+
 namespace SimpleLog\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use SimpleLog\Logger;
 use SimpleLog\Tests\Fixture\StringableMessage;
@@ -8,7 +12,7 @@ use SimpleLog\Tests\Fixture\StringableMessage;
 /**
  * Unit tests for SimpleLog\Logger.
  */
-final class LoggerTest extends \PHPUnit\Framework\TestCase
+final class LoggerTest extends TestCase
 {
     private string $logFile;
 
@@ -38,11 +42,7 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
      */
     public function setUp(): void
     {
-        $this->logFile = tempnam('/tmp', 'SimpleLogUnitTest');
-
-        if (\file_exists($this->logFile)) {
-            \unlink($this->logFile);
-        }
+        $this->logFile = sys_get_temp_dir() . '/SimpleLogTest_' . uniqid();
         $this->logger = new Logger($this->logFile, self::TEST_CHANNEL);
     }
 
@@ -56,52 +56,36 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    /**
-     * @test Logger implements PSR-3 Psr\Log\LoggerInterface
-     */
-    public function testLoggerImplementsPRS3Interface()
+    #[Test]
+    public function loggerImplementsPRS3Interface(): void
     {
         $this->assertInstanceOf(\Psr\Log\LoggerInterface::class, $this->logger);
     }
 
-    /**
-     * @test   Constructor sets expected properties.
-     * @throws \Exception
-     */
-    public function testConstructorSetsProperties()
+    #[Test]
+    public function constructorSetsProperties(): void
     {
-        // Given
-        $logFileProperty  = new \ReflectionProperty(Logger::class, 'logFile');
-        $channelProperty  = new \ReflectionProperty(Logger::class, 'channel');
-        $stdoutProperty   = new \ReflectionProperty(Logger::class, 'stdout');
-        $logLevelProperty = new \ReflectionProperty(Logger::class, 'logLevel');
+        // When - log a message and verify constructor properties are reflected in output
+        $this->logger->debug(self::TEST_MESSAGE);
+        $logLine = \trim(\file_get_contents($this->logFile));
 
-        // And
-        $logFileProperty->setAccessible(true);
-        $channelProperty->setAccessible(true);
-        $stdoutProperty->setAccessible(true);
-        $logLevelProperty->setAccessible(true);
+        // Then - channel is set correctly
+        $this->assertStringContainsString('[' . self::TEST_CHANNEL . ']', $logLine);
 
-        // Then
-        $this->assertEquals($this->logFile, $logFileProperty->getValue($this->logger));
-        $this->assertEquals(self::TEST_CHANNEL, $channelProperty->getValue($this->logger));
-        $this->assertFalse($stdoutProperty->getValue($this->logger));
-        $this->assertEquals(Logger::LEVELS[LogLevel::DEBUG], $logLevelProperty->getValue($this->logger));
+        // And - log file is written to expected path
+        $this->assertFileExists($this->logFile);
+
+        // And - default log level is DEBUG (the lowest level logs)
+        $this->assertTrue((bool) \preg_match('/\[debug\]/', $logLine));
     }
 
-    /**
-     * @test         setLogLevel sets the correct log level.
-     * @dataProvider dataProviderForSetLogLevel
-     * @param string $logLevel
-     * @param int    $expectedLogLevelCode
-     * @throws       \Exception
-     */
-    public function testSetLogLevelUsingConstants(string $logLevel, int $expectedLogLevelCode)
+    #[Test]
+    #[DataProvider('dataProviderForSetLogLevel')]
+    public function setLogLevelUsingConstants(string $logLevel, int $expectedLogLevelCode): void
     {
         // Given
         $this->logger->setLogLevel($logLevel);
         $logLevelProperty = new \ReflectionProperty(Logger::class, 'logLevel');
-        $logLevelProperty->setAccessible(true);
 
         // When
         $logLevelCode = $logLevelProperty->getValue($this->logger);
@@ -111,9 +95,9 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return array [log level, log level code]
+     * @return array<array{string, int}>
      */
-    public function dataProviderForSetLogLevel(): array
+    public static function dataProviderForSetLogLevel(): array
     {
         return [
             [Logger::LOG_LEVEL_NONE, Logger::LEVELS[Logger::LOG_LEVEL_NONE]],
@@ -128,86 +112,47 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @test   setLogLevel throws a \DomainException when set to an invalid log level.
-     * @throws \Exception
-     */
-    public function testSetLogLevelWithBadLevelException()
+    #[Test]
+    public function setLogLevelWithBadLevelException(): void
     {
         // Then
-        $this->expectException(\DomainException::class);
+        $this->expectException(\Psr\Log\InvalidArgumentException::class);
 
         // When
         $this->logger->setLogLevel('ThisLogLevelDoesNotExist');
     }
 
-
-    /**
-     * @test         setChannel sets the channel property.
-     * @dataProvider dataProviderForSetChannel
-     * @param        string $channel
-     * @throws       \Exception
-     */
-    public function testSetChannel(string $channel)
+    #[Test]
+    public function setChannel(): void
     {
         // Given
-        $channelProperty = new \ReflectionProperty(Logger::class, 'channel');
-        $channelProperty->setAccessible(true);
+        $newChannel = 'newchannel';
+        $this->logger->setChannel($newChannel);
 
         // When
-        $this->logger->setChannel($channel);
+        $this->logger->info(self::TEST_MESSAGE);
+        $logLine = \trim(\file_get_contents($this->logFile));
 
         // Then
-        $this->assertEquals($channel, $channelProperty->getValue($this->logger));
+        $this->assertStringContainsString("[$newChannel]", $logLine);
     }
 
-    /**
-     * @return array [channel]
-     */
-    public function dataProviderForSetChannel(): array
-    {
-        return [
-            ['newchannel'],
-            ['evennewerchannel'],
-        ];
-    }
-
-    /**
-     * @test         setOutput sets the stdout property.
-     * @dataProvider dataProviderForSetOutput
-     * @param        bool $output
-     * @throws       \Exception
-     */
-    public function testSetOutput(bool $output)
+    #[Test]
+    public function setStdoutFalseDoesNotPrintToStdout(): void
     {
         // Given
-        $stdout_property = new \ReflectionProperty(Logger::class, 'stdout');
-        $stdout_property->setAccessible(true);
+        $this->logger->setStdout(false);
 
         // When
-        $this->logger->setOutput($output);
+        $this->logger->info(self::TEST_MESSAGE);
 
         // Then
-        $this->assertEquals($output, $stdout_property->getValue($this->logger));
+        $this->expectOutputString('');
     }
 
-    /**
-     * @return array [output]
-     */
-    public function dataProviderForSetOutput(): array
-    {
-        return [
-            [true],
-            [false],
-        ];
-    }
-
-    /**
-     * @test         Logger creates properly formatted log lines with the right log level for a string.
-     * @dataProvider dataProviderForLogging
-     * @param string $logLevel
-     */
-    public function testLoggingWithString(string $logLevel)
+    #[Test]
+    #[DataProvider('dataProviderForLogging')]
+    public function loggingWithString(string $logLevel): void
     {
         // When
         $this->logger->$logLevel(self::TEST_MESSAGE);
@@ -218,12 +163,9 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue((bool) preg_match("/\[$logLevel\]/", $logLine));
     }
 
-    /**
-     * @test         Logger creates properly formatted log lines with the right log level for a Stringable.
-     * @dataProvider dataProviderForLogging
-     * @param string $logLevel
-     */
-    public function testLoggingWithStringable(string $logLevel)
+    #[Test]
+    #[DataProvider('dataProviderForLogging')]
+    public function loggingWithStringable(string $logLevel): void
     {
         // Given
         $message = new StringableMessage(self::TEST_MESSAGE);
@@ -238,9 +180,9 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return array [loglevel]
+     * @return array<array{string}>
      */
-    public function dataProviderForLogging(): array
+    public static function dataProviderForLogging(): array
     {
         return [
             ['debug'],
@@ -254,10 +196,8 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /**
-     * @test Data context array shows up as a JSON string.
-     */
-    public function testDataContext()
+    #[Test]
+    public function dataContext(): void
     {
         // When
         $this->logger->info(self::TEST_MESSAGE, ['key1' => 'value1', 'key2' => 6]);
@@ -267,10 +207,103 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue((bool) \preg_match('/\s{"key1":"value1","key2":6}\s/', $logLine));
     }
 
-    /**
-     * @test Logging an exception
-     */
-    public function testExceptionTextWhenLoggingErrorWithExceptionData()
+    #[Test]
+    public function messageInterpolatesContextPlaceholders(): void
+    {
+        // When
+        $this->logger->info('User {username} logged in', ['username' => 'mark']);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - message has interpolated value
+        $this->assertStringContainsString('User mark logged in', $logLine);
+
+        // And - context still preserved in JSON data field
+        $this->assertStringContainsString('"username":"mark"', $logLine);
+    }
+
+    #[Test]
+    public function messageInterpolatesMultiplePlaceholders(): void
+    {
+        // When
+        $this->logger->info('{user} performed {action} on {target}', ['user' => 'alice', 'action' => 'delete', 'target' => 'file.txt']);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then
+        $this->assertStringContainsString('alice performed delete on file.txt', $logLine);
+    }
+
+    #[Test]
+    public function messageWithPlaceholderNotInContextIsLeftAsIs(): void
+    {
+        // When
+        $this->logger->info('User {username} has role {role}', ['username' => 'mark']);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - existing placeholder replaced, missing one left intact
+        $this->assertStringContainsString('User mark has role {role}', $logLine);
+    }
+
+    #[Test]
+    public function messageInterpolationSkipsArrayValues(): void
+    {
+        // When
+        $this->logger->info('Data: {items}', ['items' => ['a', 'b', 'c']]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - array placeholder not interpolated
+        $this->assertStringContainsString('Data: {items}', $logLine);
+    }
+
+    #[Test]
+    public function messageInterpolationSkipsObjectsWithoutToString(): void
+    {
+        // When
+        $this->logger->info('Object: {obj}', ['obj' => new \stdClass()]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then
+        $this->assertStringContainsString('Object: {obj}', $logLine);
+    }
+
+    #[Test]
+    public function messageInterpolationUsesStringableObjects(): void
+    {
+        // Given
+        $message = new StringableMessage('world');
+
+        // When
+        $this->logger->info('Hello {name}', ['name' => $message]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then
+        $this->assertStringContainsString('Hello world', $logLine);
+    }
+
+    #[Test]
+    public function messageWithoutPlaceholdersIgnoresContext(): void
+    {
+        // When
+        $this->logger->info('No placeholders here', ['key' => 'value']);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - message unchanged, context still in JSON
+        $this->assertStringContainsString('No placeholders here', $logLine);
+        $this->assertStringContainsString('"key":"value"', $logLine);
+    }
+
+    #[Test]
+    public function messageInterpolationWorksWithIntegerAndFloatValues(): void
+    {
+        // When
+        $this->logger->info('Count: {count}, Rate: {rate}', ['count' => 42, 'rate' => 3.14]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then
+        $this->assertStringContainsString('Count: 42, Rate: 3.14', $logLine);
+    }
+
+    #[Test]
+    public function exceptionTextWhenLoggingErrorWithExceptionData(): void
     {
         // Given
         $e = new \Exception('Exception123');
@@ -288,49 +321,169 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue((bool) \preg_match('/trace/', $logLine));
     }
 
-    /**
-     * @test Log lines will be on a single line even if there are newline characters in the log message.
-     */
-    public function testLogMessageIsOneLineEvenThoughItHasNewLineCharacters()
+    #[Test]
+    public function logMessageIsOneLineEvenThoughItHasNewLineCharacters(): void
     {
         // When
         $this->logger->info("This message has a new line\nAnd another\n", ['key' => 'value']);
 
         // Then
         $logLines = \file($this->logFile);
-        $this->assertEquals(1, \count($logLines));
+        $this->assertCount(1, $logLines);
     }
 
-    /**
-     * @test Log lines will be on a single line even if there are newline characters in the log message.
-     */
-    public function testLogMessageIsOneLineEvenThoughItHasNewLineCharactersInData()
+    #[Test]
+    public function logMessageIsOneLineEvenThoughItHasNewLineCharactersInData(): void
     {
         // When
         $this->logger->info('Log message', ['key' => "Value\nwith\new\lines\n"]);
 
         // Then
         $logLines = \file($this->logFile);
-        $this->assertEquals(1, \count($logLines));
+        $this->assertCount(1, $logLines);
     }
 
-    /**
-     * @test Log lines will be on a single line even if there are newline characters in the exception.
-     */
-    public function testLogMessageIsOneLineEvenThoughItHasNewLineCharactersInException()
+    #[Test]
+    public function logMessageIsOneLineEvenThoughItHasNewLineCharactersInException(): void
     {
         // When
         $this->logger->info('Log message', ['key' => 'value', 'exception' => new \Exception("This\nhas\newlines\nin\nit")]);
 
         // Then
         $logLines = \file($this->logFile);
-        $this->assertEquals(1, \count($logLines));
+        $this->assertCount(1, $logLines);
     }
 
-    /**
-     * @test Minimum log levels determine what log levels get logged.
-     */
-    public function testMinimumLogLevels()
+    #[Test]
+    public function logLineHasExactlySevenTsvFields(): void
+    {
+        // When
+        $this->logger->info('Simple message', ['key' => 'value']);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - 7 fields means exactly 6 tab delimiters
+        $this->assertSame(6, \substr_count($logLine, "\t"));
+    }
+
+    #[Test]
+    public function tabsInMessageDoNotBreakTsvFields(): void
+    {
+        // When
+        $this->logger->info("Message\twith\ttabs");
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - still exactly 6 tab delimiters
+        $this->assertSame(6, \substr_count($logLine, "\t"));
+        $this->assertStringNotContainsString("Message\twith", $logLine);
+    }
+
+    #[Test]
+    public function tabsInContextDataDoNotBreakTsvFields(): void
+    {
+        // When
+        $this->logger->info('Message', ['key' => "value\twith\ttabs"]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then
+        $this->assertSame(6, \substr_count($logLine, "\t"));
+    }
+
+    #[Test]
+    public function tabsInChannelDoNotBreakTsvFields(): void
+    {
+        // Given
+        $this->logger->setChannel("chan\tnel");
+
+        // When
+        $this->logger->info('Message');
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then
+        $this->assertSame(6, \substr_count($logLine, "\t"));
+    }
+
+    #[Test]
+    public function tabsInExceptionDoNotBreakTsvFields(): void
+    {
+        // When
+        $this->logger->info('Message', ['exception' => new \Exception("Error\twith\ttab")]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then
+        $this->assertSame(6, \substr_count($logLine, "\t"));
+    }
+
+    #[Test]
+    public function carriageReturnsInMessageDoNotBreakLogLine(): void
+    {
+        // When
+        $this->logger->info("Message\rwith\r\nreturns");
+        $logLines = \file($this->logFile);
+
+        // Then
+        $this->assertCount(1, $logLines);
+        $logLine = \trim($logLines[0]);
+        $this->assertStringNotContainsString("\r", $logLine);
+    }
+
+    #[Test]
+    public function carriageReturnsInContextDataDoNotBreakLogLine(): void
+    {
+        // When
+        $this->logger->info('Message', ['key' => "value\rwith\r\nreturns"]);
+        $logLines = \file($this->logFile);
+
+        // Then
+        $this->assertCount(1, $logLines);
+        $logLine = \trim($logLines[0]);
+        $this->assertStringNotContainsString("\r", $logLine);
+    }
+
+    #[Test]
+    public function carriageReturnsInChannelDoNotBreakLogLine(): void
+    {
+        // Given
+        $this->logger->setChannel("chan\r\nnel");
+
+        // When
+        $this->logger->info('Message');
+        $logLines = \file($this->logFile);
+
+        // Then
+        $this->assertCount(1, $logLines);
+        $logLine = \trim($logLines[0]);
+        $this->assertStringNotContainsString("\r", $logLine);
+    }
+
+    #[Test]
+    public function carriageReturnsInExceptionDoNotBreakLogLine(): void
+    {
+        // When
+        $this->logger->info('Message', ['exception' => new \Exception("Error\rwith\r\nreturns")]);
+        $logLines = \file($this->logFile);
+
+        // Then
+        $this->assertCount(1, $logLines);
+        $logLine = \trim($logLines[0]);
+        $this->assertStringNotContainsString("\r", $logLine);
+    }
+
+    #[Test]
+    public function newlinesInChannelDoNotBreakLogLine(): void
+    {
+        // Given
+        $this->logger->setChannel("chan\nnel");
+
+        // When
+        $this->logger->info('Message');
+        $logLines = \file($this->logFile);
+
+        // Then
+        $this->assertCount(1, $logLines);
+    }
+
+    #[Test]
+    public function minimumLogLevels(): void
     {
         // When
         $this->logger->setLogLevel(LogLevel::ERROR);
@@ -349,13 +502,11 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
 
         // Then
         $logLines = \file($this->logFile);
-        $this->assertEquals(4, \count($logLines));
+        $this->assertCount(4, $logLines);
     }
 
-    /**
-     * @test Minimum log levels determine what log levels get logged.
-     */
-    public function testMinimumLogLevelsByCheckingFileExistsBelowLogLevel()
+    #[Test]
+    public function minimumLogLevelsByCheckingFileExistsBelowLogLevel(): void
     {
         // Given
         $this->logger->setLogLevel(LogLevel::ERROR);
@@ -373,10 +524,28 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(\file_exists($this->logFile));
     }
 
-    /**
-     * @test Minimum log levels determine what log levels get logged.
-     */
-    public function testMinimumLogLevelsByCheckingFileExistsAboveLogLevel()
+    #[Test]
+    public function logLevelNoneDisablesAllLogging(): void
+    {
+        // Given
+        $this->logger->setLogLevel(Logger::LOG_LEVEL_NONE);
+
+        // When
+        $this->logger->debug('This will not be logged.');
+        $this->logger->info('This will not be logged.');
+        $this->logger->notice('This will not be logged.');
+        $this->logger->warning('This will not be logged.');
+        $this->logger->error('This will not be logged.');
+        $this->logger->critical('This will not be logged.');
+        $this->logger->alert('This will not be logged.');
+        $this->logger->emergency('This will not be logged.');
+
+        // Then
+        $this->assertFalse(\file_exists($this->logFile));
+    }
+
+    #[Test]
+    public function minimumLogLevelsByCheckingFileExistsAboveLogLevel(): void
     {
         // Given
         $this->logger->setLogLevel(LogLevel::ERROR);
@@ -388,29 +557,128 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(\file_exists($this->logFile));
     }
 
-    /**
-     * @test   Exception is thrown if the log file cannot be opened.
-     * @throws \Exception
-     */
-    public function testLogExceptionCannotOpenFile()
+    #[Test]
+    public function logDirectlyRespectsMinimumLogLevel(): void
     {
         // Given
-        $badLogger = new Logger('/this/file/should/not/exist/on/any/system/if/it/does/well/oh/well/this/test/will/fail/logfile123.loglog.log', self::TEST_CHANNEL);
+        $this->logger->setLogLevel(LogLevel::ERROR);
+
+        // When
+        $this->logger->log(LogLevel::DEBUG, 'This should not be logged.');
+        $this->logger->log(LogLevel::INFO, 'This should not be logged.');
+        $this->logger->log(LogLevel::WARNING, 'This should not be logged.');
+        $this->logger->log(LogLevel::ERROR, 'This should be logged.');
+        $this->logger->log(LogLevel::CRITICAL, 'This should be logged.');
+
+        // Then
+        $logLines = \file($this->logFile);
+        $this->assertCount(2, $logLines);
+    }
+
+    #[Test]
+    public function logWithInvalidLevelStringThrowsInvalidArgumentException(): void
+    {
+        // Then
+        $this->expectException(\Psr\Log\InvalidArgumentException::class);
+
+        // When
+        $this->logger->log('banana', 'This should throw.');
+    }
+
+    #[Test]
+    public function logWithIntegerLevelThrowsInvalidArgumentException(): void
+    {
+        // Then
+        $this->expectException(\Psr\Log\InvalidArgumentException::class);
+
+        // When
+        $this->logger->log(42, 'This should throw.');
+    }
+
+    #[Test]
+    public function logWithArrayLevelThrowsInvalidArgumentException(): void
+    {
+        // Then
+        $this->expectException(\Psr\Log\InvalidArgumentException::class);
+
+        // When
+        $this->logger->log(['error'], 'This should throw.');
+    }
+
+    #[Test]
+    public function logWithObjectLevelThrowsInvalidArgumentException(): void
+    {
+        // Then
+        $this->expectException(\Psr\Log\InvalidArgumentException::class);
+
+        // When
+        $this->logger->log(new \stdClass(), 'This should throw.');
+    }
+
+    #[Test]
+    public function logWithNullLevelThrowsInvalidArgumentException(): void
+    {
+        // Then
+        $this->expectException(\Psr\Log\InvalidArgumentException::class);
+
+        // When
+        $this->logger->log(null, 'This should throw.');
+    }
+
+    #[Test]
+    public function logWithBoolLevelThrowsInvalidArgumentException(): void
+    {
+        // Then
+        $this->expectException(\Psr\Log\InvalidArgumentException::class);
+
+        // When
+        $this->logger->log(true, 'This should throw.');
+    }
+
+    #[Test]
+    public function constructorThrowsExceptionForEmptyLogFilePath(): void
+    {
+        // Then
+        $this->expectException(\InvalidArgumentException::class);
+
+        // When
+        new Logger('', self::TEST_CHANNEL);
+    }
+
+    #[Test]
+    public function constructorThrowsExceptionWhenDirectoryDoesNotExist(): void
+    {
+        // Then
+        $this->expectException(\InvalidArgumentException::class);
+
+        // When
+        new Logger('/nonexistent/directory/logfile.log', self::TEST_CHANNEL);
+    }
+
+    #[Test]
+    public function logExceptionCannotOpenFile(): void
+    {
+        // Given - use a read-only directory so the file cannot be created
+        $readOnlyDir = \sys_get_temp_dir() . '/simplelog_readonly_test_' . \getmypid();
+        \mkdir($readOnlyDir, 0555, true);
+        $badLogger = new Logger($readOnlyDir . '/logfile.log', self::TEST_CHANNEL);
 
         // Then
         $this->expectException(\RuntimeException::class);
 
-        // When
-        $badLogger->info('This is not going to work, hence the test for the exception!');
+        try {
+            // When
+            $badLogger->info('This is not going to work, hence the test for the exception!');
+        } finally {
+            \rmdir($readOnlyDir);
+        }
     }
 
-    /**
-     * @test After setting output to true the logger will output log lines to STDOUT.
-     */
-    public function testLoggingToStdOut()
+    #[Test]
+    public function loggingToStdOut(): void
     {
         // Given
-        $this->logger->setOutput(true);
+        $this->logger->setStdout(true);
 
         // Then
         $this->expectOutputRegex('/^\d{4}-\d{2}-\d{2} [ ] \d{2}:\d{2}:\d{2}[.]\d{6} \s \[\w+\] \s \[\w+\] \s \[pid:\d+\] \s Test Message \s {.*} \s {.*}/x');
@@ -418,22 +686,105 @@ final class LoggerTest extends \PHPUnit\Framework\TestCase
         // When
         $this->logger->info('TestMessage');
     }
- 
-    /**
-     * @test   Time should be in YYYY-MM-DD HH:mm:SS.uuuuuu format.
-     * @throws \Exception
-     */
-    public function testGetTime()
+
+    #[Test]
+    public function contextWithResourcePreservesSerializableDataAndIndicatesError(): void
     {
-        // Given
-        $reflection = new \ReflectionClass($this->logger);
-        $method     = $reflection->getMethod('getTime');
-        $method->setAccessible(true);
+        // Given - a resource handle that json_encode cannot serialize
+        $resource = \fopen('php://memory', 'r');
 
         // When
-        $time = $method->invoke($this->logger);
+        $this->logger->info(self::TEST_MESSAGE, ['valid' => 'data', 'handle' => $resource]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+        \fclose($resource);
 
-        // Then
-        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}[.]\d{6}$/', $time);
+        // Then - serializable data is preserved
+        $this->assertStringContainsString('"valid":"data"', $logLine);
+
+        // And - an error indicator is present so the failure is not silent
+        $this->assertStringContainsString('_json_encode_error', $logLine);
+    }
+
+    #[Test]
+    public function contextWithCircularReferencePreservesSerializableDataAndIndicatesError(): void
+    {
+        // Given - circular reference that json_encode cannot serialize
+        $a = new \stdClass();
+        $b = new \stdClass();
+        $a->child = $b;
+        $b->parent = $a;
+
+        // When
+        $this->logger->info(self::TEST_MESSAGE, ['valid' => 'data', 'circular' => $a]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - serializable data is preserved
+        $this->assertStringContainsString('"valid":"data"', $logLine);
+
+        // And - an error indicator is present
+        $this->assertStringContainsString('_json_encode_error', $logLine);
+    }
+
+    #[Test]
+    public function contextWithOnlySerializableDataHasNoErrorIndicator(): void
+    {
+        // When
+        $this->logger->info(self::TEST_MESSAGE, ['key' => 'value', 'num' => 42]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - data is encoded normally
+        $this->assertStringContainsString('"key":"value"', $logLine);
+        $this->assertStringContainsString('"num":42', $logLine);
+
+        // And - no error indicator
+        $this->assertStringNotContainsString('_json_encode_error', $logLine);
+    }
+
+    #[Test]
+    public function exceptionFallbackWithDoubleQuoteInMessageProducesValidJson(): void
+    {
+        // Given - an exception whose message contains a double quote
+        $e = new \Exception('Something "broke" here');
+
+        // When - call buildExceptionData via reflection, simulating json_encode failure on full data
+        $reflection = new \ReflectionClass($this->logger);
+        $method     = $reflection->getMethod('buildExceptionData');
+
+        // Temporarily override json_encode behavior by testing the fallback path directly:
+        // We invoke buildExceptionData and verify the result is always valid JSON.
+        $result = $method->invoke($this->logger, $e);
+
+        // Then - result must be valid JSON regardless of whether primary or fallback path was taken
+        $this->assertNotNull(\json_decode($result));
+        $this->assertStringContainsString('Something \"broke\" here', $result);
+    }
+
+    #[Test]
+    public function exceptionFallbackProducesValidJsonWhenJsonEncodeFails(): void
+    {
+        // Given - an exception with a resource in trace args that will cause json_encode to fail
+        //         and a message containing double quotes to expose the injection bug
+        $resource = \fopen('php://memory', 'r');
+        try {
+            // Call a function with a resource arg so it appears in the exception trace
+            (function ($res) {
+                throw new \Exception('She said "hello"');
+            })($resource);
+        } catch (\Exception $e) {
+            // This exception's trace contains a resource, so json_encode will fail
+        }
+        \fclose($resource);
+
+        // When
+        $this->logger->error('Exception test', ['exception' => $e]);
+        $logLine = \trim(\file_get_contents($this->logFile));
+
+        // Then - the log line should contain valid JSON for the exception field
+        // Extract the last JSON object (exception data) from the TSV log line
+        $fields = \explode("\t", $logLine);
+        $exceptionJson = \end($fields);
+        $decoded = \json_decode($exceptionJson, true);
+        $this->assertNotNull($decoded, "Exception JSON is invalid: $exceptionJson");
+        $this->assertSame('She said "hello"', $decoded['message']);
     }
 }

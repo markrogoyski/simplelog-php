@@ -1,6 +1,7 @@
 <?php
 namespace SimpleLog;
 
+use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
 
 /**
@@ -26,18 +27,17 @@ use Psr\Log\LogLevel;
  *   $logger->error('Something exceptional happened.', ['exception' => $e]);
  *
  * To set output to standard out (STDOUT) as well as a log file:
- *   $logger->setOutput(true);
+ *   $logger->setStdout(true);
  *
  * To change the channel after construction:
  *   $logger->setChannel('newname')
  */
-class Logger implements \Psr\Log\LoggerInterface
+final class Logger implements \Psr\Log\LoggerInterface
 {
     /**
      * File name and path of log file.
-     * @var string
      */
-    private string $logFile;
+    private readonly string $logFile;
 
     /**
      * Log channel--namespace for log lines.
@@ -72,7 +72,7 @@ class Logger implements \Psr\Log\LoggerInterface
      * Log level hierarchy
      */
     public const LEVELS = [
-        self::LOG_LEVEL_NONE => -1,
+        self::LOG_LEVEL_NONE => PHP_INT_MAX,
         LogLevel::DEBUG      => 0,
         LogLevel::INFO       => 1,
         LogLevel::NOTICE     => 2,
@@ -90,6 +90,15 @@ class Logger implements \Psr\Log\LoggerInterface
      */
     public function __construct(string $logFile, string $channel, string $logLevel = LogLevel::DEBUG)
     {
+        if ($logFile === '') {
+            throw new \InvalidArgumentException('Log file path cannot be empty.');
+        }
+
+        $logDirectory = \dirname($logFile);
+        if (!\is_dir($logDirectory)) {
+            throw new \InvalidArgumentException("Log file directory does not exist: $logDirectory");
+        }
+
         $this->logFile  = $logFile;
         $this->channel   = $channel;
         $this->stdout    = false;
@@ -104,7 +113,7 @@ class Logger implements \Psr\Log\LoggerInterface
     public function setLogLevel(string $logLevel): void
     {
         if (!\array_key_exists($logLevel, self::LEVELS)) {
-            throw new \DomainException("Log level $logLevel is not a valid log level. Must be one of (" . \implode(', ', \array_keys(self::LEVELS)) . ')');
+            throw new InvalidArgumentException("Log level $logLevel is not a valid log level. Must be one of (" . \implode(', ', \array_keys(self::LEVELS)) . ')');
         }
 
         $this->logLevel = self::LEVELS[$logLevel];
@@ -126,141 +135,114 @@ class Logger implements \Psr\Log\LoggerInterface
      *
      * @param bool $stdout
      */
-    public function setOutput(bool $stdout): void
+    public function setStdout(bool $stdout): void
     {
         $this->stdout = $stdout;
     }
 
     /**
      * Log a debug message.
-     * Fine-grained informational events that are most useful to debug an application.
+     * Detailed debug information.
      *
      * @param string|\Stringable $message Content of log event.
      * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
-     *
-     * @throws \RuntimeException
      */
     public function debug(string|\Stringable $message = '', array $context = []): void
     {
-        if ($this->logAtThisLevel(LogLevel::DEBUG)) {
-            $this->log(LogLevel::DEBUG, $message, $context);
-        }
+        $this->log(LogLevel::DEBUG, $message, $context);
     }
 
     /**
      * Log an info message.
-     * Interesting events and informational messages that highlight the progress of the application at coarse-grained level.
+     * Interesting events.
+     *
+     * Example: User logs in, SQL logs.
      *
      * @param string|\Stringable $message Content of log event.
      * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
-     *
-     * @throws \RuntimeException
      */
     public function info(string|\Stringable $message = '', array $context = []): void
     {
-        if ($this->logAtThisLevel(LogLevel::INFO)) {
-            $this->log(LogLevel::INFO, $message, $context);
-        }
+        $this->log(LogLevel::INFO, $message, $context);
     }
 
     /**
-     * Log an notice message.
+     * Log a notice message.
      * Normal but significant events.
      *
      * @param string|\Stringable $message Content of log event.
      * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
-     *
-     * @throws \RuntimeException
      */
     public function notice(string|\Stringable $message = '', array $context = []): void
     {
-        if ($this->logAtThisLevel(LogLevel::NOTICE)) {
-            $this->log(LogLevel::NOTICE, $message, $context);
-        }
+        $this->log(LogLevel::NOTICE, $message, $context);
     }
 
     /**
      * Log a warning message.
-     * Exceptional occurrences that are not errors--undesirable things that are not necessarily wrong.
-     * Potentially harmful situations which still allow the application to continue running.
+     * Exceptional occurrences that are not errors.
+     *
+     * Example: Use of deprecated APIs, poor use of an API, undesirable things that are not necessarily wrong.
      *
      * @param string|\Stringable $message Content of log event.
      * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
-     *
-     * @throws \RuntimeException
      */
     public function warning(string|\Stringable $message = '', array $context = []): void
     {
-        if ($this->logAtThisLevel(LogLevel::WARNING)) {
-            $this->log(LogLevel::WARNING, $message, $context);
-        }
+        $this->log(LogLevel::WARNING, $message, $context);
     }
 
     /**
      * Log an error message.
-     * Error events that might still allow the application to continue running.
      * Runtime errors that do not require immediate action but should typically be logged and monitored.
      *
      * @param string|\Stringable $message Content of log event.
      * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
-     *
-     * @throws \RuntimeException
      */
     public function error(string|\Stringable $message = '', array $context = []): void
     {
-        if ($this->logAtThisLevel(LogLevel::ERROR)) {
-            $this->log(LogLevel::ERROR, $message, $context);
-        }
+        $this->log(LogLevel::ERROR, $message, $context);
     }
 
     /**
      * Log a critical condition.
-     * Application components being unavailable, unexpected exceptions, etc.
+     * Critical conditions.
+     *
+     * Example: Application component unavailable, unexpected exception.
      *
      * @param string|\Stringable $message Content of log event.
      * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
-     *
-     * @throws \RuntimeException
      */
     public function critical(string|\Stringable $message = '', array $context = []): void
     {
-        if ($this->logAtThisLevel(LogLevel::CRITICAL)) {
-            $this->log(LogLevel::CRITICAL, $message, $context);
-        }
+        $this->log(LogLevel::CRITICAL, $message, $context);
     }
 
     /**
      * Log an alert.
-     * This should trigger an email or SMS alert and wake you up.
-     * Example: Entire site down, database unavailable, etc.
+     * Action must be taken immediately.
+     *
+     * Example: Entire website down, database unavailable, etc.
+     * This should trigger the SMS alerts and wake you up.
      *
      * @param string|\Stringable $message Content of log event.
      * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
-     *
-     * @throws \RuntimeException
      */
     public function alert(string|\Stringable $message = '', array $context = []): void
     {
-        if ($this->logAtThisLevel(LogLevel::ALERT)) {
-            $this->log(LogLevel::ALERT, $message, $context);
-        }
+        $this->log(LogLevel::ALERT, $message, $context);
     }
 
     /**
      * Log an emergency.
      * System is unusable.
-     * This should trigger an email or SMS alert and wake you up.
      *
      * @param string|\Stringable $message Content of log event.
      * @param mixed[]            $context Associative array of contextual support data that goes with the log event.
-     *
-     * @throws \RuntimeException
      */
     public function emergency(string|\Stringable $message = '', array $context = []): void
     {
-        if ($this->logAtThisLevel(LogLevel::EMERGENCY)) {
-            $this->log(LogLevel::EMERGENCY, $message, $context);
-        }
+        $this->log(LogLevel::EMERGENCY, $message, $context);
     }
 
     /**
@@ -275,26 +257,29 @@ class Logger implements \Psr\Log\LoggerInterface
      */
     public function log($level, string|\Stringable $message = '', array $context = []): void
     {
-        /** @var string $level */
+        if (!\is_string($level) || !\array_key_exists($level, self::LEVELS)) {
+            throw new InvalidArgumentException("Log level " . (\is_string($level) ? $level : \gettype($level)) . " is not a valid log level. Must be one of (" . \implode(', ', \array_keys(self::LEVELS)) . ')');
+        }
+
+        if (!$this->logAtThisLevel($level)) {
+            return;
+        }
 
         // Build log line
         $pid                = \getmypid() ?: -1;
         /** @var string $exception */
+        /** @var mixed[] $data */
         [$exception, $data] = $this->handleException($context);
-        $data               = $data ? \json_encode($data, \JSON_UNESCAPED_SLASHES) : '{}';
-        $data               = $data ?: '{}'; // Fail-safe in case json_encode fails.
+        $data               = $this->encodeData($data);
+        $message            = $this->interpolate((string) $message, $context);
         $logLine            = $this->formatLogLine($level, $pid, $message, $data, $exception);
 
         // Log to file
-        try {
-            $fh = \fopen($this->logFile, 'a');
-            if ($fh === false) {
-                throw new \RuntimeException('fopen failed');
-            }
-            \fwrite($fh, $logLine);
-            \fclose($fh);
-        } catch (\Throwable $e) {
-            throw new \RuntimeException("Could not open log file {$this->logFile} for writing to SimpleLog channel {$this->channel}!", 0, $e);
+        $result = @\file_put_contents($this->logFile, $logLine, \FILE_APPEND | \LOCK_EX);
+        if ($result === false) {
+            $error  = \error_get_last();
+            $reason = $error['message'] ?? 'unknown error';
+            throw new \RuntimeException("Could not write to log file {$this->logFile} for SimpleLog channel {$this->channel}: {$reason}");
         }
 
         // Log to stdout if option set to do so.
@@ -319,11 +304,11 @@ class Logger implements \Psr\Log\LoggerInterface
      * Handle an exception in the data context array.
      * If an exception is included in the data context array, extract it.
      *
-     * @param  mixed[]|null $context
+     * @param  mixed[] $context
      *
      * @return mixed[]  [exception, data (without exception)]
      */
-    private function handleException(array $context = null): array
+    private function handleException(array $context): array
     {
         if (isset($context['exception']) && $context['exception'] instanceof \Throwable) {
             $exception      = $context['exception'];
@@ -334,6 +319,34 @@ class Logger implements \Psr\Log\LoggerInterface
         }
 
         return [$exception_data, $context];
+    }
+
+    /**
+     * JSON encode the context data array.
+     * If encoding fails (e.g. due to resources or circular references), retry with
+     * JSON_PARTIAL_OUTPUT_ON_ERROR to preserve serializable values, and add an error indicator.
+     *
+     * @param  mixed[] $data
+     *
+     * @return string JSON-encoded context data
+     */
+    private function encodeData(array $data): string
+    {
+        if (!$data) {
+            return '{}';
+        }
+
+        $encoded = \json_encode($data, \JSON_UNESCAPED_SLASHES);
+        if ($encoded !== false) {
+            return $encoded;
+        }
+
+        $errorMessage = \json_last_error_msg();
+        $data['_json_encode_error'] = $errorMessage;
+
+        $encoded = \json_encode($data, \JSON_UNESCAPED_SLASHES | \JSON_PARTIAL_OUTPUT_ON_ERROR);
+
+        return $encoded ?: '{"_json_encode_error":"' . $errorMessage . '"}';
     }
 
     /**
@@ -357,7 +370,7 @@ class Logger implements \Psr\Log\LoggerInterface
         );
 
         // Fail-safe in case json_encode failed
-        return $exceptionData ?: '{"message":"' . $e->getMessage() . '"}';
+        return $exceptionData ?: '{"message":' . \json_encode($e->getMessage()) . '}';
     }
 
     /**
@@ -374,14 +387,51 @@ class Logger implements \Psr\Log\LoggerInterface
      */
     private function formatLogLine(string $level, int $pid, string $message, string $data, string $exceptionData): string
     {
+        $channel = $this->sanitize($this->channel);
+
         return
-            $this->getTime()                              . self::TAB .
-            "[$level]"                                    . self::TAB .
-            "[{$this->channel}]"                          . self::TAB .
-            "[pid:$pid]"                                  . self::TAB .
-            \str_replace(\PHP_EOL, '   ', trim($message))  . self::TAB .
-            \str_replace(\PHP_EOL, '   ', $data)           . self::TAB .
-            \str_replace(\PHP_EOL, '   ', $exceptionData) . \PHP_EOL;
+            $this->getTime()                    . self::TAB .
+            "[$level]"                          . self::TAB .
+            "[$channel]"                        . self::TAB .
+            "[pid:$pid]"                        . self::TAB .
+            $this->sanitize(trim($message))     . self::TAB .
+            $this->sanitize($data)              . self::TAB .
+            $this->sanitize($exceptionData)     . \PHP_EOL;
+    }
+
+    /**
+     * Interpolate context values into message placeholders.
+     * PSR-3 specifies that context values should be interpolatable into the message
+     * using {placeholder} syntax.
+     *
+     * @param  string  $message
+     * @param  mixed[] $context
+     *
+     * @return string
+     */
+    private function interpolate(string $message, array $context): string
+    {
+        $replace = [];
+        foreach ($context as $key => $val) {
+            if (!\is_array($val) && (!\is_object($val) || $val instanceof \Stringable)) {
+                $replace['{' . $key . '}'] = $val;
+            }
+        }
+
+        return \strtr($message, $replace);
+    }
+
+    /**
+     * Sanitize a string for safe inclusion in a TSV log line.
+     * Replaces tab, newline, and carriage return characters with spaces.
+     *
+     * @param  string $value
+     *
+     * @return string
+     */
+    private function sanitize(string $value): string
+    {
+        return \str_replace(["\t", "\n", "\r"], '   ', $value);
     }
 
     /**

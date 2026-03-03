@@ -4,14 +4,12 @@ namespace SimpleLog\Tests\Fixture;
 
 final class StringableMessage implements \Stringable
 {
-    private string $message;
-
-    public function __construct(string $message)
-    {
-        $this->message = $message;
+    public function __construct(
+        private readonly string $message
+    ) {
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->message;
     }
