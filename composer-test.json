@@ -10,7 +10,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^10.5",
-    "php-parallel-lint/php-parallel-lint": "^1.4"
+    "php-parallel-lint/php-parallel-lint": "^1.4",
+    "php-coveralls/php-coveralls": "^2.7"
   },
   "autoload": {
     "psr-4": {"SimpleLog\\": "src/"}
